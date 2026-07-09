@@ -49,12 +49,6 @@ export default function Home() {
 
       <section className="nrs-form-section" id="surveys">
         <div className="nrs-form-section__inner">
-          <span className="nrs-section-badge">Select a form</span>
-          <h2 className="nrs-section-title">Which form are you here for?</h2>
-          <p className="nrs-section-sub">
-            Each form opens on its own page with its own link you can share directly.
-          </p>
-
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24, maxWidth: 900 }}>
             {SURVEYS.map((s) => (
               <div key={s.href} className="nrs-hero__card" style={{ maxWidth: "none", display: "flex", flexDirection: "column", gap: 0 }}>
