@@ -416,6 +416,23 @@ body {
   min-height: 120px;
 }
 .nrs-textarea:focus { border-color: var(--nrs-red); }
+.nrs-select {
+  width: 100%;
+  height: 46px;
+  padding: 0 40px 0 16px;
+  border: 2px solid var(--nrs-gray-300);
+  border-radius: var(--nrs-r-md);
+  font-family: var(--nrs-font);
+  font-size: 14px;
+  color: var(--nrs-text);
+  background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 16px center;
+  appearance: none;
+  transition: border-color .15s;
+  outline: none;
+  cursor: pointer;
+}
+.nrs-select:focus { border-color: var(--nrs-red); }
+.nrs-select:disabled { background-color: var(--nrs-gray-100); color: var(--nrs-gray-500); cursor: not-allowed; }
 .nrs-form-divider { height: 1px; background: var(--nrs-gray-100); margin: 32px 0; }
 .nrs-btn-submit {
   background: var(--nrs-red);

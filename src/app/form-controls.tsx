@@ -109,6 +109,48 @@ export function TextField({
   )
 }
 
+export function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+  placeholder,
+  disabled,
+  error,
+}: {
+  label?: string
+  value: string
+  onChange: (v: string) => void
+  options: { value: string; label: string }[]
+  placeholder: string
+  disabled?: boolean
+  error?: string
+}) {
+  return (
+    <div style={{ width: "100%" }}>
+      {label && (
+        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--nrs-gray-700)", marginBottom: 6 }}>
+          {label}
+        </div>
+      )}
+      <select
+        className="nrs-select"
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        <option value="">{placeholder}</option>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      {error && <p className="nrs-field-error">{error}</p>}
+    </div>
+  )
+}
+
 export function QuestionLabel({
   num,
   children,

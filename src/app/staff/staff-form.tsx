@@ -11,6 +11,8 @@ import {
   SubmitButton,
   SuccessState,
 } from "../form-controls"
+import { TaxOfficeSelect } from "../tax-office-select"
+import { isValidTaxOffice } from "@/lib/tax-offices"
 
 const YES_NO = ["YES", "NO"]
 
@@ -132,7 +134,10 @@ const signatorySchema = z.object({
 })
 
 const schema = z.object({
-  tax_office: z.string().min(1, "Please enter the tax office"),
+  tax_office: z
+    .string()
+    .min(1, "Please select the tax office")
+    .refine(isValidTaxOffice, "Please select a tax office from the list"),
   sections: z.array(sectionSchema).length(SECTIONS.length),
   staff: z.array(staffSchema).min(1, "Add at least one staff member"),
   checked_by: signatorySchema,
@@ -275,10 +280,9 @@ export function StaffForm() {
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <div className="nrs-form-group">
         <QuestionLabel>Tax Office</QuestionLabel>
-        <TextField
+        <TaxOfficeSelect
           value={values.tax_office}
           onChange={(v) => setValue("tax_office", v, { shouldValidate: true })}
-          placeholder="Name of the tax office visited"
           error={errors.tax_office?.message}
         />
       </div>

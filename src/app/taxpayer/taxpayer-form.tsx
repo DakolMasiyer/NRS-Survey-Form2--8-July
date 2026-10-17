@@ -12,6 +12,8 @@ import {
   SubmitButton,
   SuccessState,
 } from "../form-controls"
+import { TaxOfficeSelect } from "../tax-office-select"
+import { isValidTaxOffice } from "@/lib/tax-offices"
 
 const YES_NO = ["YES", "NO"]
 
@@ -45,7 +47,10 @@ const REV360_COMFORT_OPTIONS = [
 
 const schema = z
   .object({
-    tax_office: z.string().min(1, "Please enter your tax office"),
+    tax_office: z
+      .string()
+      .min(1, "Please select your tax office")
+      .refine(isValidTaxOffice, "Please select a tax office from the list"),
     has_tax_id: z.string().min(1, "Please select an option"),
     tax_id: z.string().max(50).optional(),
     rc_bn: z.string().max(100).optional(),
@@ -184,10 +189,9 @@ export function TaxpayerForm() {
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <div className="nrs-form-group">
         <QuestionLabel num={next()}>Tax Office</QuestionLabel>
-        <TextField
+        <TaxOfficeSelect
           value={values.tax_office}
           onChange={set("tax_office")}
-          placeholder="e.g. Wuse Tax Office, Abuja"
           error={errors.tax_office?.message}
         />
       </div>
