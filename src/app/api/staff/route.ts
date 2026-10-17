@@ -2,7 +2,7 @@ import { NextRequest } from "next/server"
 import { proxyToWebhooks } from "@/lib/webhook"
 
 /*
- * Service Optimization Checklist (SPAFF) → NRS_SPAFF_WEBHOOK_URL (+ _BACKUP)
+ * Service Optimization Checklist (STAFF) → NRS_SPAFF_WEBHOOK_URL (+ _BACKUP)
  *
  * Payload keys (spreadsheet column order):
  *   submitted_at, tax_office,

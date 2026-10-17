@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { TopBar, Nav, Footer } from "../chrome"
-import { SpaffForm } from "./spaff-form"
+import { StaffForm } from "./staff-form"
 
 export const metadata: Metadata = {
   title: "Service Optimization Checklist | Nigeria Revenue Service",
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "Checklist for the optimization of Customer Service Units / Self-Service Stations — Customer Service Quality Assurance Unit.",
 }
 
-export default function SpaffPage() {
+export default function StaffPage() {
   return (
     <>
       <TopBar />
@@ -50,7 +50,7 @@ export default function SpaffPage() {
             </div>
 
             <div className="nrs-form-card__body">
-              <SpaffForm />
+              <StaffForm />
             </div>
           </div>
         </div>

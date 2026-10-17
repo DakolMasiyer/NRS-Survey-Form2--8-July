@@ -1,5 +1,5 @@
-// NRS SPAFF Service Optimization Checklist — Apps Script webhook
-// Matches payload keys documented in src/app/api/spaff/route.ts
+// NRS STAFF Service Optimization Checklist — Apps Script webhook
+// Matches payload keys documented in src/app/api/staff/route.ts
 
 const SECTION_KEYS = ["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10"]
 

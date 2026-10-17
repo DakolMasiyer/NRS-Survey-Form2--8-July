@@ -176,7 +176,7 @@ function SignatoryBlock({
   )
 }
 
-export function SpaffForm() {
+export function StaffForm() {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
@@ -239,7 +239,7 @@ export function SpaffForm() {
         payload[`${prefix}_email`] = sig.email
       }
 
-      const res = await fetch("/api/spaff", {
+      const res = await fetch("/api/staff", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
