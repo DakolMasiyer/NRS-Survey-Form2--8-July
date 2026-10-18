@@ -361,113 +361,121 @@ export function StaffForm() {
 
       <div className="nrs-form-divider" />
 
-      {SECTIONS.map((section, i) => (
-        <div key={section.key}>
-          <div className="nrs-form-group">
-            <QuestionLabel num={i + 1}>{section.title}</QuestionLabel>
+      <div className={`nrs-check-table${unlocked ? " nrs-check-table--scored" : ""}`}>
+        <div className="nrs-check-head" aria-hidden="true">
+          <div>S/N</div>
+          <div>Issues</div>
+          <div>Yes / No</div>
+          <div>Remarks / actions required</div>
+          {unlocked && <div>Score (%)</div>}
+        </div>
 
-            {section.items && (
-              <ul style={{ margin: "0 0 12px 36px", fontSize: 13, color: "var(--nrs-gray-700)", lineHeight: 1.8 }}>
-                {section.items.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
+        {SECTIONS.map((section, i) => (
+          <div key={section.key} className="nrs-check-row">
+            <div className="nrs-check-sn">{i + 1}</div>
+
+            <div>
+              <div className="nrs-check-title">{section.title}</div>
+              {section.items && (
+                <ul className="nrs-check-items">
+                  {section.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div>
+              <span className="nrs-check-cell__label">Status</span>
+              <RadioPills
+                name={`sections.${i}.status`}
+                options={YES_NO}
+                inline
+                value={values.sections[i]?.status ?? ""}
+                onChange={(v) => setValue(`sections.${i}.status`, v, { shouldValidate: true })}
+                error={errors.sections?.[i]?.status?.message}
+              />
+            </div>
+
+            <div>
+              <span className="nrs-check-cell__label">Remarks / actions required</span>
+              <textarea
+                className="nrs-textarea"
+                style={{ minHeight: 70 }}
+                maxLength={2000}
+                value={values.sections[i]?.remarks ?? ""}
+                onChange={(e) => setValue(`sections.${i}.remarks`, e.target.value)}
+              />
+            </div>
+
+            {unlocked && (
+              <div className="nrs-check-score">
+                <span className="nrs-check-cell__label">Score (%)</span>
+                <TextField
+                  type="number"
+                  value={values.sections[i]?.score ?? ""}
+                  onChange={(v) => setValue(`sections.${i}.score`, v, { shouldValidate: true })}
+                  placeholder="0–100"
+                  error={errors.sections?.[i]?.score?.message}
+                />
+              </div>
             )}
 
             {section.key === "s2" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
-                {staffFields.map((field, idx) => (
-                  <div
-                    key={field.id}
-                    style={{ border: "2px solid var(--nrs-gray-300)", borderRadius: "var(--nrs-r-md)", padding: 16 }}
+              <div className="nrs-check-extra">
+                <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
+                  {staffFields.map((field, idx) => (
+                    <div
+                      key={field.id}
+                      style={{ border: "2px solid var(--nrs-gray-300)", borderRadius: "var(--nrs-r-md)", padding: 16 }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                        <span style={{ fontSize: 13, fontWeight: 800, color: "var(--nrs-navy)" }}>
+                          Staff {idx + 1}
+                        </span>
+                        {staffFields.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => remove(idx)}
+                            style={{ background: "none", border: "none", color: "var(--nrs-red)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
+                        {(["name", "ir", "rank", "phone", "email"] as const).map((f) => (
+                          <Controller
+                            key={f}
+                            control={control}
+                            name={`staff.${idx}.${f}`}
+                            render={({ field: rhf, fieldState }) => (
+                              <TextField
+                                label={f === "ir" ? "IR" : f[0].toUpperCase() + f.slice(1)}
+                                value={rhf.value}
+                                onChange={rhf.onChange}
+                                error={fieldState.error?.message}
+                              />
+                            )}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    className="nrs-btn nrs-btn--outline"
+                    style={{ alignSelf: "flex-start", fontSize: 13, padding: "8px 16px" }}
+                    onClick={() => append({ name: "", ir: "", rank: "", phone: "", email: "" })}
                   >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                      <span style={{ fontSize: 13, fontWeight: 800, color: "var(--nrs-navy)" }}>
-                        Staff {idx + 1}
-                      </span>
-                      {staffFields.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => remove(idx)}
-                          style={{ background: "none", border: "none", color: "var(--nrs-red)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
-                      {(["name", "ir", "rank", "phone", "email"] as const).map((f) => (
-                        <Controller
-                          key={f}
-                          control={control}
-                          name={`staff.${idx}.${f}`}
-                          render={({ field: rhf, fieldState }) => (
-                            <TextField
-                              label={f === "ir" ? "IR" : f[0].toUpperCase() + f.slice(1)}
-                              value={rhf.value}
-                              onChange={rhf.onChange}
-                              error={fieldState.error?.message}
-                            />
-                          )}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="nrs-btn nrs-btn--outline"
-                  style={{ alignSelf: "flex-start", fontSize: 13, padding: "8px 16px" }}
-                  onClick={() => append({ name: "", ir: "", rank: "", phone: "", email: "" })}
-                >
-                  + Add staff member
-                </button>
+                    + Add staff member
+                  </button>
+                </div>
               </div>
             )}
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--nrs-gray-700)", marginBottom: 6 }}>
-                  Status
-                </div>
-                <RadioPills
-                  name={`sections.${i}.status`}
-                  options={YES_NO}
-                  inline
-                  value={values.sections[i]?.status ?? ""}
-                  onChange={(v) => setValue(`sections.${i}.status`, v, { shouldValidate: true })}
-                  error={errors.sections?.[i]?.status?.message}
-                />
-              </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--nrs-gray-700)", marginBottom: 6 }}>
-                  Remarks / actions required
-                </div>
-                <textarea
-                  className="nrs-textarea"
-                  style={{ minHeight: 70 }}
-                  maxLength={2000}
-                  value={values.sections[i]?.remarks ?? ""}
-                  onChange={(e) => setValue(`sections.${i}.remarks`, e.target.value)}
-                />
-              </div>
-              {unlocked && (
-                <div style={{ maxWidth: 200 }}>
-                  <TextField
-                    label="Score (%)"
-                    type="number"
-                    value={values.sections[i]?.score ?? ""}
-                    onChange={(v) => setValue(`sections.${i}.score`, v, { shouldValidate: true })}
-                    placeholder="0–100"
-                    error={errors.sections?.[i]?.score?.message}
-                  />
-                </div>
-              )}
-            </div>
           </div>
-          <div className="nrs-form-divider" />
-        </div>
-      ))}
+        ))}
+      </div>
 
       {unlocked && (
         <>

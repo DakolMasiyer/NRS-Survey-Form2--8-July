@@ -9,6 +9,7 @@ import {
   CheckboxPills,
   TextField,
   QuestionLabel,
+  SectionBar,
   SubmitButton,
   SuccessState,
 } from "../form-controls"
@@ -198,7 +199,7 @@ export function TaxpayerForm() {
         />
       </div>
 
-      <div className="nrs-form-divider" />
+      <SectionBar letter="A">Taxpayer / Business Information</SectionBar>
 
       <div className="nrs-form-group">
         <QuestionLabel num={next()} optional>
@@ -233,7 +234,7 @@ export function TaxpayerForm() {
         )}
       </div>
 
-      <div className="nrs-form-divider" />
+      <SectionBar letter="B">Tax Compliance</SectionBar>
 
       <div className="nrs-form-group">
         <QuestionLabel num={next()}>Have you been tax compliant?</QuestionLabel>
@@ -271,7 +272,7 @@ export function TaxpayerForm() {
         )}
       </div>
 
-      <div className="nrs-form-divider" />
+      <SectionBar letter="C">Service Experience</SectionBar>
 
       <div className="nrs-form-group">
         <QuestionLabel num={next()}>
@@ -328,7 +329,7 @@ export function TaxpayerForm() {
         />
       </div>
 
-      <div className="nrs-form-divider" />
+      <SectionBar letter="D">Digital Channels &amp; Awareness</SectionBar>
 
       {FAMILIARITY_ITEMS.map(({ key, label }) => (
         <div key={key}>
@@ -404,7 +405,7 @@ export function TaxpayerForm() {
         />
       </div>
 
-      <div className="nrs-form-divider" />
+      <SectionBar letter="E">Your Feedback</SectionBar>
 
       <div className="nrs-form-group">
         <QuestionLabel num={next()} optional>
@@ -446,6 +447,17 @@ export function TaxpayerForm() {
             <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
           </svg>
           Personal details are optional — only share what you are comfortable with.
+        </p>
+      </div>
+
+      <div className="nrs-form-divider" />
+
+      <div style={{ textAlign: "center" }}>
+        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, fontStyle: "italic", color: "var(--nrs-red)" }}>
+          WE THANK YOU FOR YOUR TIME AND FEEDBACK!
+        </p>
+        <p style={{ margin: "4px 0 0", fontSize: 12, fontStyle: "italic", color: "var(--nrs-gray-500)" }}>
+          Powered by the Customer Service Group, Nigeria Revenue Service (NRS)
         </p>
       </div>
 

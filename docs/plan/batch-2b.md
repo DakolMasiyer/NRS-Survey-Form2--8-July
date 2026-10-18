@@ -16,3 +16,12 @@ Steps:
 8. Visual check: `npm run dev`, screenshot `/taxpayer` and `/staff` at 1280px and 390px wide, and compare with page 1 of `NRS.pdf` and `NIGERIA.pdf`. **Show the screenshots to the owner and wait for sign-off**; match to the eye is subjective and not testable by assertion.
 
 Definition of done: gate passes and owner approves the screenshots. Commit: "Letterhead and paper-form styling for both forms".
+
+**Status: built and committed; waiting for owner sign-off on the screenshots (step 8).** Notes and deviations:
+- `Letterhead` takes `units: string[]` (not one `unit`) because the paper checklist stacks Strategic Management Office, Customer Service Group and the CSQAU line. The address is shown on the taxpayer form only (the paper checklist has none).
+- The letterhead title is the page's `<h1>`; the old red-icon card header, meta chips, section badge and page `<h2>`/subtitle were removed from both pages.
+- Question numbers are now plain bold red numerals ("1.", as on paper) instead of red circles; this applies on both forms.
+- Staff card is wider (`.nrs-form-card--wide`, 1040px). The checklist is a table (S/N, Issues, Yes/No, Remarks, Score) and stacks into labelled cards under 760px. The Score column exists only after unlock.
+- Closing "WE THANK YOU…" and "Powered by…" lines are on the taxpayer form only (they are not on the paper checklist).
+- Visual check done at 1280px and at 390px (390px via a 390px-wide iframe, because the browser would not shrink below desktop width). 51 tests passing; tsc, lint, build pass.
+- Not changed (out of scope): the nav CTA button ("Start Survey" / "Open Checklist") has dark text on red, which is low contrast.

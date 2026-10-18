@@ -62,6 +62,26 @@ describe("TaxpayerForm layout", () => {
     expect(complianceLabel).not.toHaveTextContent("(optional)")
   })
 
+  it("shows the five paper-form section bars A to E in order", () => {
+    const { container } = render(<TaxpayerForm />)
+    const bars = [...container.querySelectorAll(".nrs-section-bar")].map((b) => b.textContent)
+    expect(bars).toEqual([
+      "Section A — Taxpayer / Business Information",
+      "Section B — Tax Compliance",
+      "Section C — Service Experience",
+      "Section D — Digital Channels & Awareness",
+      "Section E — Your Feedback",
+    ])
+  })
+
+  it("ends with the paper form's thank-you and powered-by lines", () => {
+    render(<TaxpayerForm />)
+    expect(screen.getByText("WE THANK YOU FOR YOUR TIME AND FEEDBACK!")).toBeInTheDocument()
+    expect(
+      screen.getByText("Powered by the Customer Service Group, Nigeria Revenue Service (NRS)")
+    ).toBeInTheDocument()
+  })
+
   it("shows separate optional phone and email fields when the company has no Tax ID", () => {
     render(<TaxpayerForm />)
     fireEvent.click(screen.getAllByLabelText("NO")[0])

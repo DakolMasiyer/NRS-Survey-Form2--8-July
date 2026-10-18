@@ -175,6 +175,14 @@ export function QuestionLabel({
   )
 }
 
+export function SectionBar({ letter, children }: { letter: string; children: React.ReactNode }) {
+  return (
+    <div className="nrs-section-bar">
+      Section {letter} — {children}
+    </div>
+  )
+}
+
 export function SubmitButton({ submitting, label }: { submitting: boolean; label: string }) {
   return (
     <button type="submit" className="nrs-btn-submit" disabled={submitting}>

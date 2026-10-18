@@ -30,6 +30,25 @@ describe("StaffForm scoring lock", () => {
     expect(screen.queryByText(TOTAL_LABEL)).not.toBeInTheDocument()
   })
 
+  it("renders the 10 checklist sections as table rows with no Score column while locked", () => {
+    const { container } = render(<StaffForm />)
+    expect(container.querySelectorAll(".nrs-check-row")).toHaveLength(10)
+    expect(container.querySelector(".nrs-check-table--scored")).toBeNull()
+    expect(container.querySelector(".nrs-check-score")).toBeNull()
+    expect(screen.queryByText("Score (%)")).not.toBeInTheDocument()
+    expect(screen.getByText("Remarks / actions required", { selector: ".nrs-check-head div" })).toBeInTheDocument()
+  })
+
+  it("adds the Score column after unlock", async () => {
+    mockUnlock(true)
+    const { container } = render(<StaffForm />)
+    await tryCode(container, "test-code")
+    await screen.findAllByPlaceholderText(SCORE_PLACEHOLDER)
+    expect(container.querySelector(".nrs-check-table--scored")).not.toBeNull()
+    expect(container.querySelectorAll(".nrs-check-score")).toHaveLength(10)
+    expect(screen.getByText("Score (%)", { selector: ".nrs-check-head div" })).toBeInTheDocument()
+  })
+
   it("labels the first sign-off block as CSQAU", () => {
     render(<StaffForm />)
     expect(screen.getByText("Checked by (CSQAU)")).toBeInTheDocument()
