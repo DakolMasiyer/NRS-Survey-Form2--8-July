@@ -13,6 +13,7 @@ import {
 } from "../form-controls"
 import { TaxOfficeSelect } from "../tax-office-select"
 import { isValidTaxOffice } from "@/lib/tax-offices"
+import { averageScore } from "@/lib/score"
 
 const YES_NO = ["YES", "NO"]
 
@@ -202,15 +203,7 @@ export function StaffForm() {
 
   const values = watch()
 
-  const scoredSections = values.sections.filter((s) => s.score !== "")
-  const totalScore =
-    scoredSections.length === 0
-      ? null
-      : Math.round(
-          (scoredSections.reduce((sum, s) => sum + (Number(s.score) || 0), 0) /
-            scoredSections.length) *
-            10
-        ) / 10
+  const totalScore = averageScore(values.sections.map((s) => s.score))
 
   async function onSubmit(data: FormValues) {
     setSubmitting(true)
@@ -227,12 +220,7 @@ export function StaffForm() {
         payload[`${section.key}_score`] = Number(data.sections[i].score)
       })
       payload.s2_staff = JSON.stringify(data.staff)
-      payload.total_score =
-        Math.round(
-          (data.sections.reduce((sum, s) => sum + Number(s.score), 0) /
-            data.sections.length) *
-            10
-        ) / 10
+      payload.total_score = averageScore(data.sections.map((s) => s.score))
       for (const [prefix, sig] of [
         ["checked_by", data.checked_by],
         ["head_tpsu", data.head_tpsu],

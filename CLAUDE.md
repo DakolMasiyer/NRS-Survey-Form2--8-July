@@ -19,4 +19,6 @@ Shared proxy logic in `src/lib/webhook.ts`. See route file headers for payload c
 # Commands
 - Run locally: `npm run dev`
 - Lint: `npm run lint`
-- Build: `npm run build` — no test framework, so lint + build is the verification gate.
+- Test: `npm test` (Vitest + Testing Library)
+- Build: `npm run build`
+- Verification gate: `npm run lint`, `npx tsc --noEmit`, `npm run build`, `npm test`. Staged work plan in `docs/plan/`.
