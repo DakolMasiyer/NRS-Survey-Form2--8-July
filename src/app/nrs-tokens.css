@@ -662,3 +662,41 @@ body {
     color: var(--nrs-gray-700);
   }
 }
+
+/* ── CHANNELS TABLE (paper form Q7) ── */
+.nrs-channel-table { border: 1px solid var(--nrs-gray-300); }
+.nrs-channel-head, .nrs-channel-row { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.1fr) 190px; }
+.nrs-channel-head > div {
+  padding: 10px 12px;
+  background: var(--nrs-red);
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .03em;
+}
+.nrs-channel-row { border-top: 1px solid var(--nrs-gray-300); align-items: center; }
+.nrs-channel-row > div { padding: 10px 12px; min-width: 0; }
+.nrs-channel-name { font-size: 14px; font-weight: 700; color: var(--nrs-navy); }
+.nrs-channel-detail { font-size: 13px; color: var(--nrs-gray-700); overflow-wrap: anywhere; }
+.nrs-channel-row .nrs-radio-group { gap: 8px; }
+.nrs-channel-row .nrs-radio-label { padding: 8px 10px; gap: 8px; }
+
+/* ── SOCIAL HANDLES (paper form Q9) ── */
+.nrs-socials {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 10px 20px;
+}
+.nrs-socials li { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.nrs-socials__platform { font-weight: 700; color: var(--nrs-navy); flex: 0 0 82px; }
+.nrs-socials__handle { color: var(--nrs-gray-700); overflow-wrap: break-word; min-width: 0; }
+.nrs-socials__contact { margin: 0 0 14px; font-size: 12px; color: var(--nrs-gray-500); }
+
+@media (max-width: 640px) {
+  .nrs-channel-head { display: none; }
+  .nrs-channel-row { display: block; padding: 6px 0; }
+  .nrs-channel-row > div { padding: 3px 12px; }
+}

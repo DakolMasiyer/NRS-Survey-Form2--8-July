@@ -15,6 +15,8 @@ import {
 } from "../form-controls"
 import { TaxOfficeSelect } from "../tax-office-select"
 import { isValidTaxOffice } from "@/lib/tax-offices"
+import { NRS_CHANNELS, NRS_CONTACT, NRS_SOCIALS, REV360_COMFORT_OPTIONS } from "@/lib/nrs-channels"
+import { SocialIcon } from "../social-icon"
 
 const YES_NO = ["YES", "NO"]
 
@@ -37,14 +39,6 @@ const WAIT_OPTIONS = [
 ]
 
 const SATISFACTION_OPTIONS = ["EXCELLENT", "VERY GOOD", "GOOD", "POOR", "VERY POOR"]
-
-const REV360_COMFORT_OPTIONS = [
-  "Very comfortable",
-  "Comfortable",
-  "Somewhat comfortable",
-  "Not comfortable",
-  "I have never used it",
-]
 
 export const schema = z
   .object({
@@ -116,13 +110,6 @@ const DEFAULTS: FormValues = {
   suggestions: "",
   contact_email: "",
 }
-
-const FAMILIARITY_ITEMS: { key: keyof FormValues; label: React.ReactNode }[] = [
-  { key: "knows_website", label: <>Are you familiar with our NRS website? (www.nrs.gov.ng)</> },
-  { key: "knows_contact_centre", label: <>Are you familiar with our NRS Contact Centre number? (02094602700)</> },
-  { key: "knows_ussd", label: <>Are you familiar with our NRS USSD code *829#?</> },
-  { key: "knows_tax_id_url", label: <>Are you familiar with the NRS Tax ID URL? (taxid.nrs.gov.ng)</> },
-]
 
 export function TaxpayerForm() {
   const [submitted, setSubmitted] = useState(false)
@@ -331,39 +318,37 @@ export function TaxpayerForm() {
 
       <SectionBar letter="D">Digital Channels &amp; Awareness</SectionBar>
 
-      {FAMILIARITY_ITEMS.map(({ key, label }) => (
-        <div key={key}>
-          <div className="nrs-form-group">
-            <QuestionLabel num={next()}>{label}</QuestionLabel>
-            <RadioPills
-              name={key}
-              options={YES_NO}
-              inline
-              value={(values[key] as string) ?? ""}
-              onChange={set(key)}
-              error={errors[key]?.message as string | undefined}
-            />
-          </div>
-          <div className="nrs-form-divider" />
-        </div>
-      ))}
-
       <div className="nrs-form-group">
         <QuestionLabel num={next()}>
-          Are you familiar with the new NRS Rev360 URL (selfservice.nrs.gov.ng) for filing and payment of taxes?
+          Please indicate whether you are familiar with each of the following NRS channels:
         </QuestionLabel>
-        <RadioPills
-          name="knows_rev360"
-          options={YES_NO}
-          inline
-          value={values.knows_rev360}
-          onChange={set("knows_rev360")}
-          error={errors.knows_rev360?.message}
-        />
+        <div className="nrs-channel-table">
+          <div className="nrs-channel-head" aria-hidden="true">
+            <div>Channel</div>
+            <div>Details</div>
+            <div>Are you familiar with this?</div>
+          </div>
+          {NRS_CHANNELS.map(({ key, label, detail }) => (
+            <div key={key} className="nrs-channel-row">
+              <div className="nrs-channel-name">{label}</div>
+              <div className="nrs-channel-detail">{detail}</div>
+              <div>
+                <RadioPills
+                  name={key}
+                  options={YES_NO}
+                  inline
+                  value={values[key]}
+                  onChange={set(key)}
+                  error={errors[key]?.message}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
         {values.knows_rev360 === "YES" && (
-          <div style={{ marginTop: 14 }}>
+          <div style={{ marginTop: 18 }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: "var(--nrs-gray-700)", marginBottom: 8 }}>
-              How comfortable are you using the Rev360 platform? (optional)
+              How comfortable are you using the Rev360 self-service platform for filing and payment? (optional)
             </div>
             <RadioPills
               name="rev360_comfort"
@@ -378,23 +363,19 @@ export function TaxpayerForm() {
       <div className="nrs-form-divider" />
 
       <div className="nrs-form-group">
-        <QuestionLabel num={next()}>Are you familiar with the NRS E-invoicing?</QuestionLabel>
-        <RadioPills
-          name="knows_einvoicing"
-          options={YES_NO}
-          inline
-          value={values.knows_einvoicing}
-          onChange={set("knows_einvoicing")}
-          error={errors.knows_einvoicing?.message}
-        />
-      </div>
-
-      <div className="nrs-form-divider" />
-
-      <div className="nrs-form-group">
-        <QuestionLabel num={next()}>
-          Are you aware of our social media handles? (@nigeriarevenue — Nigeria Revenue Service (NRS) on Facebook, X, Instagram and LinkedIn)
-        </QuestionLabel>
+        <QuestionLabel num={next()}>Are you aware of NRS&apos;s official social media handles?</QuestionLabel>
+        <ul className="nrs-socials">
+          {NRS_SOCIALS.map(({ platform, handle }) => (
+            <li key={platform}>
+              <SocialIcon platform={platform} />
+              <span className="nrs-socials__platform">{platform}</span>
+              <span className="nrs-socials__handle">{handle}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="nrs-socials__contact">
+          Helpdesk: {NRS_CONTACT.helpdeskEmail} · Contact centre: {NRS_CONTACT.phone}
+        </p>
         <RadioPills
           name="knows_social_media"
           options={YES_NO}
@@ -404,6 +385,8 @@ export function TaxpayerForm() {
           error={errors.knows_social_media?.message}
         />
       </div>
+
+      <div className="nrs-form-divider" />
 
       <SectionBar letter="E">Your Feedback</SectionBar>
 

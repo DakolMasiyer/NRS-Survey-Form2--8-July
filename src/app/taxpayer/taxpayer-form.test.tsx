@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 import { TaxpayerForm, schema } from "./taxpayer-form"
 
@@ -80,6 +80,46 @@ describe("TaxpayerForm layout", () => {
     expect(
       screen.getByText("Powered by the Customer Service Group, Nigeria Revenue Service (NRS)")
     ).toBeInTheDocument()
+  })
+
+  it("shows the six channels in one grid with their details", () => {
+    const { container } = render(<TaxpayerForm />)
+    const rows = [...container.querySelectorAll(".nrs-channel-row")]
+    expect(rows).toHaveLength(6)
+    expect(rows[0]).toHaveTextContent("NRS Website")
+    expect(rows[0]).toHaveTextContent("www.nrs.gov.ng")
+    expect(rows[1]).toHaveTextContent("0209 460 2700")
+    expect(rows[2]).toHaveTextContent("*829#")
+    expect(rows[4]).toHaveTextContent("selfservice.nrs.gov.ng")
+    for (const row of rows) expect(row.querySelectorAll("input[type=radio]")).toHaveLength(2)
+  })
+
+  it("requires an answer for every channel", async () => {
+    const { container } = render(<TaxpayerForm />)
+    fireEvent.click(screen.getByRole("button", { name: /Submit Survey/ }))
+    await waitFor(() =>
+      expect(container.querySelectorAll(".nrs-channel-row .nrs-field-error")).toHaveLength(6)
+    )
+  })
+
+  it("shows the confirmed social handles and helpdesk contact", () => {
+    render(<TaxpayerForm />)
+    expect(screen.getByText("OfficialNRSNigeria")).toBeInTheDocument()
+    expect(screen.getByText("@NigeriaRevenue")).toBeInTheDocument()
+    expect(screen.getByText("@nigeriarevenue")).toBeInTheDocument()
+    expect(screen.getByText("Nigeria Revenue Service")).toBeInTheDocument()
+    expect(screen.getByText(/helpdesk@nrs\.gov\.ng/)).toBeInTheDocument()
+    expect(screen.queryByText(/@nigeriarevenue — Nigeria Revenue Service/)).not.toBeInTheDocument()
+  })
+
+  it("asks Rev360 comfort with the paper scale only when Rev360 is familiar", () => {
+    render(<TaxpayerForm />)
+    expect(screen.queryByText("Never Used")).not.toBeInTheDocument()
+    const row = screen.getByText("Rev360 Self-Service Portal").closest(".nrs-channel-row") as HTMLElement
+    fireEvent.click(within(row).getByLabelText("YES"))
+    for (const option of ["Very Comfortable", "Comfortable", "Neutral", "Uncomfortable", "Never Used"]) {
+      expect(screen.getByText(option)).toBeInTheDocument()
+    }
   })
 
   it("shows separate optional phone and email fields when the company has no Tax ID", () => {
