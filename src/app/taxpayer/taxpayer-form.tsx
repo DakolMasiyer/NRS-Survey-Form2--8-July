@@ -45,18 +45,19 @@ const REV360_COMFORT_OPTIONS = [
   "I have never used it",
 ]
 
-const schema = z
+export const schema = z
   .object({
     tax_office: z
       .string()
       .min(1, "Please select your tax office")
       .refine(isValidTaxOffice, "Please select a tax office from the list"),
-    has_tax_id: z.string().min(1, "Please select an option"),
+    has_tax_id: z.string().optional(),
     tax_id: z.string().max(50).optional(),
     rc_bn: z.string().max(100).optional(),
     address: z.string().max(300).optional(),
     line_of_business: z.string().max(200).optional(),
-    phone_email: z.string().max(200).optional(),
+    phone: z.string().max(50).optional(),
+    email: z.string().max(200).optional(),
     tax_compliant: z.string().min(1, "Please select an option"),
     non_compliance_reasons: z.array(z.string()),
     non_compliance_other: z.string().max(500).optional(),
@@ -94,7 +95,8 @@ const DEFAULTS: FormValues = {
   rc_bn: "",
   address: "",
   line_of_business: "",
-  phone_email: "",
+  phone: "",
+  email: "",
   tax_compliant: "",
   non_compliance_reasons: [],
   non_compliance_other: "",
@@ -188,7 +190,7 @@ export function TaxpayerForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <div className="nrs-form-group">
-        <QuestionLabel num={next()}>Tax Office</QuestionLabel>
+        <QuestionLabel>Tax Office</QuestionLabel>
         <TaxOfficeSelect
           value={values.tax_office}
           onChange={set("tax_office")}
@@ -199,14 +201,14 @@ export function TaxpayerForm() {
       <div className="nrs-form-divider" />
 
       <div className="nrs-form-group">
-        <QuestionLabel num={next()}>
+        <QuestionLabel num={next()} optional>
           Does your company have a Tax ID (Tax Identification Number)?
         </QuestionLabel>
         <RadioPills
           name="has_tax_id"
           options={YES_NO}
           inline
-          value={values.has_tax_id}
+          value={values.has_tax_id ?? ""}
           onChange={set("has_tax_id")}
           error={errors.has_tax_id?.message}
         />
@@ -222,10 +224,11 @@ export function TaxpayerForm() {
         )}
         {values.has_tax_id === "NO" && (
           <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 12 }}>
-            <TextField label="RC / BN" value={values.rc_bn ?? ""} onChange={set("rc_bn")} />
-            <TextField label="Address" value={values.address ?? ""} onChange={set("address")} />
-            <TextField label="Line of business" value={values.line_of_business ?? ""} onChange={set("line_of_business")} />
-            <TextField label="Phone number & email" value={values.phone_email ?? ""} onChange={set("phone_email")} />
+            <TextField label="RC / BN Number (optional)" value={values.rc_bn ?? ""} onChange={set("rc_bn")} />
+            <TextField label="Business address (optional)" value={values.address ?? ""} onChange={set("address")} />
+            <TextField label="Line of business (optional)" value={values.line_of_business ?? ""} onChange={set("line_of_business")} />
+            <TextField label="Phone number (optional)" type="tel" value={values.phone ?? ""} onChange={set("phone")} />
+            <TextField label="Email address (optional)" type="email" value={values.email ?? ""} onChange={set("email")} />
           </div>
         )}
       </div>
@@ -258,7 +261,7 @@ export function TaxpayerForm() {
             {values.non_compliance_reasons.includes("Other") && (
               <div style={{ marginTop: 10 }}>
                 <TextField
-                  label="Please explain"
+                  label="Please explain (optional)"
                   value={values.non_compliance_other ?? ""}
                   onChange={set("non_compliance_other")}
                 />
@@ -359,7 +362,7 @@ export function TaxpayerForm() {
         {values.knows_rev360 === "YES" && (
           <div style={{ marginTop: 14 }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: "var(--nrs-gray-700)", marginBottom: 8 }}>
-              How comfortable are you using the Rev360 platform?
+              How comfortable are you using the Rev360 platform? (optional)
             </div>
             <RadioPills
               name="rev360_comfort"

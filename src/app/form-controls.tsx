@@ -165,12 +165,10 @@ export function QuestionLabel({
       {num !== undefined && <span className="nrs-q-num">{num}</span>}
       <span>
         {children}
-        {optional ? (
+        {optional && (
           <span style={{ fontWeight: 400, color: "var(--nrs-gray-500)", marginLeft: 4 }}>
             (optional)
           </span>
-        ) : (
-          <span className="nrs-req">*</span>
         )}
       </span>
     </div>

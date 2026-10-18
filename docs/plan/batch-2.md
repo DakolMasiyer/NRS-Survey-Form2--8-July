@@ -12,3 +12,10 @@ Steps:
 6. Tests: schema accepts an empty Section A and missing `has_tax_id`; rejects missing Tax Office; first rendered question number is 1 and Tax Office has no number; payload keys equal the documented column list (export the key list from one place and assert it matches the route header comment).
 
 Definition of done: gate passes. Commit: "Taxpayer form: optional Section A, unnumbered office, split phone/email".
+
+**Status: done.** Implementation notes and deviations:
+- Column handling (step 3): to keep existing sheet rows aligned, `phone_email` stays in its old position as a legacy column (no longer sent) and `phone`, `email` are **appended at the end**. Single source: `src/lib/taxpayer-columns.ts`; `taxpayer-columns.test.ts` fails if the form schema, the route header comment or `scripts/taxpayer-sheet/Code.gs` drift.
+- **Release step (owner):** redeploy `Code.gs` (clasp) *and* add `phone`, `email` to the end of the live sheet's header row by hand (headers are only written to an empty sheet). If the script isn't redeployed first, the new phone/email values are silently dropped by the old script.
+- D10: `QuestionLabel` no longer renders a red `*`; optional questions/fields say "(optional)". This also removes the star from the Tax Office and Sign-off labels on `/staff`.
+- The "14 questions" chip was removed (the real count is 15 after this batch and changes again in Batch 3); time text now says 5 minutes.
+- 44 tests passing; tsc, lint, build pass. No requests were sent to any webhook.
