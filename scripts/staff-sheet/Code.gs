@@ -12,6 +12,8 @@ function buildHeaders() {
   ;["checked_by", "head_tpsu", "controller"].forEach((p) => {
     headers.push(`${p}_name`, `${p}_ir_rank`, `${p}_phone`, `${p}_email`)
   })
+  // Last column. Headers are only written to an empty sheet, so on a live sheet add this header cell by hand.
+  headers.push("submission_id")
   return headers
 }
 

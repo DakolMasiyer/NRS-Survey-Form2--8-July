@@ -34,12 +34,39 @@ async function postToWebhook(url: string, body: unknown) {
   }
 }
 
-export async function proxyToWebhooks(req: NextRequest, envVars: string[]) {
-  const webhookUrls = envVars
+function configuredUrls(envVars: string[]) {
+  return envVars
     .map((name) => process.env[name])
     .filter((url): url is string => Boolean(url))
+}
 
-  if (webhookUrls.length === 0) {
+/**
+ * Posts `body` to every configured webhook in parallel. Never throws for a
+ * failed webhook: failures are returned (and logged) so the caller decides.
+ * `configured: 0` means none of the env vars is set.
+ */
+export async function sendToWebhooks(envVars: string[], body: unknown) {
+  const webhookUrls = configuredUrls(envVars)
+
+  const results = await Promise.allSettled(
+    webhookUrls.map((url) => postToWebhook(url, body))
+  )
+
+  const failures = results
+    .filter((r): r is PromiseRejectedResult => r.status === "rejected")
+    .map((r) => r.reason as unknown)
+
+  failures.forEach((reason) => console.error("NRS webhook failed:", reason))
+
+  return {
+    configured: webhookUrls.length,
+    delivered: results.length - failures.length,
+    failures,
+  }
+}
+
+export async function proxyToWebhooks(req: NextRequest, envVars: string[]) {
+  if (configuredUrls(envVars).length === 0) {
     return NextResponse.json(
       { error: `${envVars[0]} is not configured` },
       { status: 503 }
@@ -53,17 +80,9 @@ export async function proxyToWebhooks(req: NextRequest, envVars: string[]) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
   }
 
-  const results = await Promise.allSettled(
-    webhookUrls.map((url) => postToWebhook(url, body))
-  )
+  const { delivered, failures } = await sendToWebhooks(envVars, body)
 
-  const failures = results.filter(
-    (r): r is PromiseRejectedResult => r.status === "rejected"
-  )
-
-  failures.forEach((f) => console.error("NRS webhook failed:", f.reason))
-
-  if (failures.length === results.length) {
+  if (delivered === 0) {
     return NextResponse.json({ error: "All webhooks failed" }, { status: 502 })
   }
 

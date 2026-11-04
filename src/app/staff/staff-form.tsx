@@ -14,98 +14,8 @@ import {
 import { TaxOfficeSelect } from "../tax-office-select"
 import { isValidTaxOffice } from "@/lib/tax-offices"
 import { averageScore } from "@/lib/score"
-
-const YES_NO = ["YES", "NO"]
-
-const SECTIONS: { key: string; title: string; items?: string[] }[] = [
-  {
-    key: "s1",
-    title: "Ambience (Is the unit conducive?)",
-    items: ["Accommodation", "Setting"],
-  },
-  {
-    key: "s2",
-    title: "Number of staff",
-  },
-  {
-    key: "s3",
-    title: "Availability of working tools",
-    items: [
-      "Technical forms",
-      "Computers",
-      "Network connection",
-      "Printers",
-      "Photocopier",
-      "Scanner",
-      "Dedicated phone line",
-      "Office e-mail address",
-    ],
-  },
-  {
-    key: "s4",
-    title: "Educational & information materials",
-    items: [
-      "Availability of educational materials",
-      "Availability of information materials",
-      "Display rack for educational/informative materials",
-    ],
-  },
-  {
-    key: "s5",
-    title: "Technical / non-technical registers maintained in the unit",
-    items: [
-      "VAT",
-      "TCC",
-      "Enquiries",
-      "Complaints",
-      "Dispatch to other units",
-      "Tax consultants",
-      "File transfer to other offices",
-    ],
-  },
-  {
-    key: "s6",
-    title: "Progress report on REV 360 implementation",
-    items: [
-      "Tax ID registration",
-      "Updates",
-      "Self-service station utilization",
-      "Monthly filing",
-      "Annual filing",
-      "Withholding Tax",
-      "Withholding VAT",
-      "Gap between commenced and active companies",
-      "Stamp duties",
-      "Review",
-    ],
-  },
-  {
-    key: "s7",
-    title: "Relationship management programmes held by the office",
-    items: ["Taxpayer workshops", "Tax clinics", "Road shows", "Tax Thursday"],
-  },
-  {
-    key: "s8",
-    title: "Newly registered taxpayers",
-    items: [
-      "Number of newly registered taxpayers in the immediate preceding month",
-      "Gap between number of taxpayers on the office master list / register on REV 360",
-    ],
-  },
-  {
-    key: "s9",
-    title: "Taxpayer complaints handling and resolution",
-    items: [
-      "Number received in the previous month",
-      "Number resolved",
-      "List of cases escalated to management",
-    ],
-  },
-  {
-    key: "s10",
-    title: "Any other issues for Management information",
-  },
-]
+import { SECTIONS, YES_NO } from "@/lib/staff-sections"
+import { SignatoryBlock } from "./signatory-block"
 
 const staffSchema = z.object({
   name: z.string().min(1, "Required"),
@@ -166,30 +76,6 @@ const DEFAULTS: FormValues = {
   checked_by: { ...EMPTY_SIGNATORY },
   head_tpsu: { ...EMPTY_SIGNATORY },
   controller: { ...EMPTY_SIGNATORY },
-}
-
-function SignatoryBlock({
-  title,
-  value,
-  onChange,
-  errors,
-}: {
-  title: string
-  value: FormValues["checked_by"]
-  onChange: (field: keyof FormValues["checked_by"], v: string) => void
-  errors?: Partial<Record<keyof FormValues["checked_by"], { message?: string }>>
-}) {
-  return (
-    <div style={{ border: "2px solid var(--nrs-gray-300)", borderRadius: "var(--nrs-r-md)", padding: 16 }}>
-      <div style={{ fontSize: 14, fontWeight: 800, color: "var(--nrs-navy)", marginBottom: 12 }}>{title}</div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
-        <TextField label="Name" value={value.name} onChange={(v) => onChange("name", v)} error={errors?.name?.message} />
-        <TextField label="IR / Rank" value={value.ir_rank} onChange={(v) => onChange("ir_rank", v)} error={errors?.ir_rank?.message} />
-        <TextField label="Phone number" value={value.phone} onChange={(v) => onChange("phone", v)} error={errors?.phone?.message} />
-        <TextField label="Email address" value={value.email} onChange={(v) => onChange("email", v)} error={errors?.email?.message} />
-      </div>
-    </div>
-  )
 }
 
 export function StaffForm() {
