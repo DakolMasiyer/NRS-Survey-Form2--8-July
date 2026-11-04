@@ -700,3 +700,33 @@ body {
   .nrs-channel-row { display: block; padding: 6px 0; }
   .nrs-channel-row > div { padding: 3px 12px; }
 }
+
+/* ── STAFF FORM: CSQAU SCORER BANNER (Batch 6) ── */
+.nrs-scorer-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  background: var(--nrs-gray-100);
+  border: 2px solid var(--nrs-navy);
+  border-radius: var(--nrs-r-md);
+  padding: 16px;
+  margin-bottom: 24px;
+}
+.nrs-scorer-banner__text { flex: 1 1 260px; margin: 0; font-size: 13px; color: var(--nrs-gray-700); }
+.nrs-scorer-banner__link {
+  display: inline-block;
+  flex: 0 1 auto;
+  background: var(--nrs-navy);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+  padding: 12px 18px;
+  border-radius: var(--nrs-r-md);
+}
+.nrs-scorer-banner__link:hover { background: var(--nrs-red); }
+@media (max-width: 640px) {
+  .nrs-scorer-banner__link { width: 100%; }
+}
