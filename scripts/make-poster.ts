@@ -13,7 +13,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 import QRCode from "qrcode"
 
-const host = (process.argv[2] ?? "https://survey.dako.studio").replace(/\/$/, "")
+const host = (process.argv[2] ?? "https://nrssurvey.dako.studio").replace(/\/$/, "")
 const outDir = process.argv[3] ?? "docs/qr/poster"
 if (!host.startsWith("https://")) throw new Error(`Host must start with https:// (got "${host}")`)
 
