@@ -70,7 +70,7 @@ npm test            # available from Batch 0 onwards
 - [batch-3.md](batch-3.md): Batch 3: channels grid and social handles (A9, A10, D8)
 - [batch-4.md](batch-4.md): Batch 4: blocked on NRS (A5, A6)
 - [batch-5.md](batch-5.md): Batch 5: release prep (A13, A14)
-- [batch-6.md](batch-6.md): Batch 6: two-step staff checklist (officer submits, CSQAU scorer reviews and scores). **Proposed, awaiting approval.**
+- [batch-6.md](batch-6.md): Batch 6: two-step staff checklist (officer submits, CSQAU scorer reviews and scores). **Approved, in progress (Neon + Vercel storage design).**
 
 ---
 
