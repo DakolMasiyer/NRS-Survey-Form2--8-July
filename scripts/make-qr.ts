@@ -1,7 +1,7 @@
 /*
  * Generates the printed QR codes into docs/qr/.
  *
- *   node scripts/make-qr.ts [https://host]      (default: https://survey.dako.studio)
+ *   node scripts/make-qr.ts [https://host]      (default: https://nrssurvey.dako.studio)
  *
  * Each QR encodes only <host>/t or <host>/s (see src/lib/short-link.ts), so the real form
  * address can change later without reprinting. Re-run only if the HOST changes.
@@ -13,7 +13,7 @@ import { mkdirSync, writeFileSync } from "node:fs"
 import path from "node:path"
 import QRCode from "qrcode"
 
-const host = (process.argv[2] ?? "https://survey.dako.studio").replace(/\/$/, "")
+const host = (process.argv[2] ?? "https://nrssurvey.dako.studio").replace(/\/$/, "")
 if (!host.startsWith("https://")) throw new Error(`Host must start with https:// (got "${host}")`)
 
 const QUIET = 4 // modules of white border, per the QR spec
