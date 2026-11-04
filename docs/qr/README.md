@@ -1,5 +1,31 @@
 # Printed QR codes
 
+## Posters (current design)
+`poster/` holds the 2:3 posters built to match the approved reference poster (1066 x 1600 px).
+
+| File | Use |
+|---|---|
+| `poster/poster-taxpayer.pdf` | Public poster, 200 x 300 mm, vector, fonts embedded. Scan target `/t`. |
+| `poster/poster-staff.pdf` | Internal card (CSQAU visits), same design, scan target `/s`. |
+| `poster/*.png` | 2132 x 3200 px previews / non-vector use |
+| `poster/*.svg` | Editable source (uses system Tahoma, so view/print via the PDF) |
+
+Rebuild: `node scripts/make-poster.ts` then `scripts/render-poster.sh`.
+
+Fidelity to the reference (measured, 1066 x 1600): logo, headline, body lines, footer and QR frame all sit within
+0-1 px of the reference. The QR is a 29 x 29 module code (error correction Q), the same size as the reference's.
+
+Known differences from the reference:
+- **Headline font.** The reference headline is probably Haettenschweiler (not installed, proprietary). The poster uses
+  Saira Extra Condensed Black (open licence), squeezed to the reference width. Supply the original font to get an exact match.
+- **Body/footer font** is Tahoma (matches the reference). It is a system font: embedded in the PDFs, but do not redistribute the font file.
+- **Wording.** "It's anonymous" became "It's confidential" (the form asks for no name, but Tax ID and email are optional).
+  The staff card has its own internal wording.
+- **QR frame gap.** The reference leaves about 1.3 modules between the QR and the corner brackets (less than the
+  usual 4-module blank border). It is kept for fidelity and scans correctly in tests, but test a printed proof.
+
+## Small cards (earlier design)
+
 | File | Use |
 |---|---|
 | `taxpayer-survey.pdf` / `.svg` | Public poster/handout card, 100 × 130 mm (taxpayer survey) |
