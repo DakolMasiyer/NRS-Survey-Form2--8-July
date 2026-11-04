@@ -2,7 +2,7 @@
 
 # Batch 6: two-step staff checklist on Vercel storage (Neon Postgres)
 
-**Status: approved by the owner 2026-11-04; being executed in waves (see Execution).**
+**Status (2026-11-04): code complete and merged on `feat/tax-office-dropdown`; verified locally and on a Preview; NOT yet in production.**
 
 ## Context
 Officers and CSQAU scorers work at **different times**. Today `/staff` is one form with one submission, so an unscored submission can never be completed later. The owner wants: officer submits answers -> the CSQAU scorer opens a passcode-protected page, picks the office from a dropdown, sees the officer's saved answers read-only, scores them -> the final answers land in the existing Google Sheet. One staff QR only: `/staff` gets a clear button that sends the scorer to the scoring page, where a passcode hides everything until entered.
@@ -108,3 +108,17 @@ Reuse: `verifyCsqauCode` (`src/lib/csqau-access.ts`), `averageScore` (`src/lib/s
 - Existing production keeps working until step 6.7; all database changes are additive. Rollback = promote the previous deployment.
 - Hostname: the QR hostname is the one thing that cannot change later; `nrssurvey.dako.studio` must stay registered and pointed at this Vercel project. Two hostnames serve the same app until the redirect is deployed.
 - Outstanding owner items from earlier batches still apply (taxpayer `Code.gs` + headers, junk rows in the staff sheet, merge to `main`).
+
+## Progress log (2026-11-04)
+- **Wave 0 done:** `nrssurvey.dako.studio` DNS (Cloudflare A record, DNS only) and Vercel domain attached; two Neon databases installed (`nrs-surveys-prod` for Production only, `nrs-surveys-dev` for Preview + Development); migration applied to the **dev** database only.
+- **Wave 1 done (merged):** A hostname redirect + regenerated QR posters on the new host; B data layer (`db.ts`, `visits.ts`, `access-guard.ts`, migration, `migrate.ts`); C shared pieces (`staff-sections`, `staff-schema`, `staff-columns`, `sheet-row`, `SignatoryBlock`, `sendToWebhooks`, `submission_id` column in `Code.gs`).
+- **Wave 2 done (merged):** D routes (`src/app/api/staff/**`, `src/lib/staff-api.ts`); E officer-only `/staff` with the scorer button; F scorer page `/staff/score`.
+- **Wave 3 so far:** full gate on the merged code passes (tsc 0, lint 0 errors, 201 tests, build OK). Real HTTP round trip against the dev Neon database (production build, webhooks blanked): submit 201; score key rejected 400; protected routes 403 without the code; unlock 401/200; list, get, score (server total), 409 on a second score or get after scoring, 502 on resend without a webhook, lockout 429 with Retry-After; test rows deleted afterwards. Preview deployed (`nrs-service-surveys-6mzuysbgq-...vercel.app`, protected by Vercel login): pages, 403 gate and a DB-backed 401 verified.
+
+## Remaining before production (owner-gated)
+1. Owner: TEST copy of the staff sheet + script, web-app URL for **Preview** (`NRS_SPAFF_WEBHOOK_URL`), to see a scored row arrive with `submission_id` and the server total.
+2. Owner: a long random `CSQAU_ACCESS_CODE` (Preview + Production).
+3. Owner: add the `submission_id` header cell to the live staff sheet and redeploy `Code.gs` (new version of the existing deployment) **before** production.
+4. Apply `db/migrations/001_checklist_visits.sql` to the **production** Neon database (additive) as part of the production release.
+5. Production deploy (explicit owner go-ahead): also activates the `survey.dako.studio` -> `nrssurvey.dako.studio` redirect. Smoke test with one obvious test record, then remove it.
+6. Merge to `main`; owner revokes the Cloudflare token used for DNS.
