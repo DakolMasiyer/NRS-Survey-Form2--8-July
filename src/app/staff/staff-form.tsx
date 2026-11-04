@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { useForm, useFieldArray, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -13,9 +14,7 @@ import {
 } from "../form-controls"
 import { TaxOfficeSelect } from "../tax-office-select"
 import { isValidTaxOffice } from "@/lib/tax-offices"
-import { averageScore } from "@/lib/score"
 import { SECTIONS, YES_NO } from "@/lib/staff-sections"
-import { SignatoryBlock } from "./signatory-block"
 
 const staffSchema = z.object({
   name: z.string().min(1, "Required"),
@@ -25,69 +24,53 @@ const staffSchema = z.object({
   email: z.string().min(1, "Required"),
 })
 
-const scoreSchema = z
-  .string()
-  .min(1, "Enter a score")
-  .refine((v) => {
-    const n = Number(v)
-    return Number.isFinite(n) && n >= 0 && n <= 100
-  }, "Score must be between 0 and 100")
-
-const signatorySchema = z.object({
-  name: z.string().min(1, "Required"),
-  ir_rank: z.string().min(1, "Required"),
-  phone: z.string().min(1, "Required"),
-  email: z.string().min(1, "Required"),
+const formSchema = z.object({
+  tax_office: z
+    .string()
+    .min(1, "Please select the tax office")
+    .refine(isValidTaxOffice, "Please select a tax office from the list"),
+  sections: z
+    .array(
+      z.object({
+        status: z.string().min(1, "Please select YES or NO"),
+        remarks: z.string().max(2000).optional(),
+      })
+    )
+    .length(SECTIONS.length),
+  staff: z.array(staffSchema).min(1, "Add at least one staff member"),
 })
 
-// Scores are required only once the CSQAU checker has unlocked scoring.
-function buildSchema(requireScores: boolean) {
-  return z.object({
-    tax_office: z
-      .string()
-      .min(1, "Please select the tax office")
-      .refine(isValidTaxOffice, "Please select a tax office from the list"),
-    sections: z
-      .array(
-        z.object({
-          status: z.string().min(1, "Please select YES or NO"),
-          remarks: z.string().max(2000).optional(),
-          score: requireScores ? scoreSchema : z.string(),
-        })
-      )
-      .length(SECTIONS.length),
-    staff: z.array(staffSchema).min(1, "Add at least one staff member"),
-    checked_by: signatorySchema,
-    head_tpsu: signatorySchema,
-    controller: signatorySchema,
-  })
-}
+type FormValues = z.infer<typeof formSchema>
 
-const scoredSchema = buildSchema(true)
-const unscoredSchema = buildSchema(false)
-
-type FormValues = z.infer<typeof scoredSchema>
-
-const EMPTY_SIGNATORY = { name: "", ir_rank: "", phone: "", email: "" }
 const DEFAULTS: FormValues = {
   tax_office: "",
-  sections: SECTIONS.map(() => ({ status: "", remarks: "", score: "" })),
+  sections: SECTIONS.map(() => ({ status: "", remarks: "" })),
   staff: [{ name: "", ir: "", rank: "", phone: "", email: "" }],
-  checked_by: { ...EMPTY_SIGNATORY },
-  head_tpsu: { ...EMPTY_SIGNATORY },
-  controller: { ...EMPTY_SIGNATORY },
+}
+
+// Builds the body for POST /api/staff (stage 1: answers only, no scores or
+// sign-offs). Shape matches `stage1Schema` in src/lib/staff-schema.ts.
+export function buildStage1Payload(values: FormValues) {
+  return {
+    tax_office: values.tax_office,
+    sections: values.sections.map((s) => ({
+      status: s.status,
+      remarks: s.remarks ?? "",
+    })),
+    staff: values.staff.map((m) => ({
+      name: m.name,
+      ir: m.ir,
+      rank: m.rank,
+      phone: m.phone,
+      email: m.email,
+    })),
+  }
 }
 
 export function StaffForm() {
-  const [submitted, setSubmitted] = useState(false)
+  const [submittedRef, setSubmittedRef] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
-  // The verified CSQAU code; non-null means scoring is unlocked.
-  const [csqauCode, setCsqauCode] = useState<string | null>(null)
-  const [codeInput, setCodeInput] = useState("")
-  const [unlocking, setUnlocking] = useState(false)
-  const [unlockError, setUnlockError] = useState<string | null>(null)
-  const unlocked = csqauCode !== null
 
   const {
     handleSubmit,
@@ -97,8 +80,7 @@ export function StaffForm() {
     reset: resetForm,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: (values, context, options) =>
-      zodResolver(unlocked ? scoredSchema : unscoredSchema)(values, context, options),
+    resolver: zodResolver(formSchema),
     defaultValues: DEFAULTS,
   })
 
@@ -106,70 +88,19 @@ export function StaffForm() {
 
   const values = watch()
 
-  const totalScore = averageScore(values.sections.map((s) => s.score))
-
-  async function unlock() {
-    setUnlocking(true)
-    setUnlockError(null)
-    try {
-      const res = await fetch("/api/staff/unlock", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: codeInput }),
-      })
-      if (!res.ok) {
-        const json = await res.json().catch(() => ({}))
-        throw new Error((json as { error?: string }).error ?? "Could not verify the access code")
-      }
-      setCsqauCode(codeInput)
-      setCodeInput("")
-    } catch (err) {
-      setUnlockError(err instanceof Error ? err.message : "Could not verify the access code")
-    } finally {
-      setUnlocking(false)
-    }
-  }
-
   async function onSubmit(data: FormValues) {
     setSubmitting(true)
     setServerError(null)
     try {
-      const payload: Record<string, unknown> = {
-        submitted_at: new Date().toISOString(),
-        tax_office: data.tax_office,
-      }
-      SECTIONS.forEach((section, i) => {
-        payload[`${section.key}_title`] = section.title
-        payload[`${section.key}_status`] = data.sections[i].status
-        payload[`${section.key}_remarks`] = data.sections[i].remarks ?? ""
-        if (unlocked) payload[`${section.key}_score`] = Number(data.sections[i].score)
-      })
-      payload.s2_staff = JSON.stringify(data.staff)
-      if (unlocked) payload.total_score = averageScore(data.sections.map((s) => s.score))
-      for (const [prefix, sig] of [
-        ["checked_by", data.checked_by],
-        ["head_tpsu", data.head_tpsu],
-        ["controller", data.controller],
-      ] as const) {
-        payload[`${prefix}_name`] = sig.name
-        payload[`${prefix}_ir_rank`] = sig.ir_rank
-        payload[`${prefix}_phone`] = sig.phone
-        payload[`${prefix}_email`] = sig.email
-      }
-
       const res = await fetch("/api/staff", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(csqauCode !== null && { "x-csqau-code": csqauCode }),
-        },
-        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildStage1Payload(data)),
       })
-      if (!res.ok) {
-        const json = await res.json().catch(() => ({}))
-        throw new Error((json as { error?: string }).error ?? "Submission failed")
-      }
-      setSubmitted(true)
+      const json = (await res.json().catch(() => ({}))) as { error?: string; reference?: string }
+      if (!res.ok) throw new Error(json.error ?? "Submission failed")
+      if (!json.reference) throw new Error("Submission saved but no reference was returned")
+      setSubmittedRef(json.reference)
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Something went wrong. Please try again.")
     } finally {
@@ -178,62 +109,30 @@ export function StaffForm() {
   }
 
   function reset() {
-    setSubmitted(false)
+    setSubmittedRef(null)
     setServerError(null)
-    setCsqauCode(null)
-    setUnlockError(null)
     resetForm(DEFAULTS)
   }
 
-  if (submitted)
+  if (submittedRef !== null)
     return (
       <SuccessState
         title="Checklist submitted!"
-        body="The service optimization visit report has been recorded by the Customer Service Quality Assurance Unit."
+        body={`Reference: ${submittedRef}. It is now waiting for the CSQAU scorer.`}
         onReset={reset}
       />
     )
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div
-        style={{ border: "2px solid var(--nrs-gray-300)", borderRadius: "var(--nrs-r-md)", padding: 16, marginBottom: 24 }}
-      >
-        <div style={{ fontSize: 14, fontWeight: 800, color: "var(--nrs-navy)", marginBottom: 6 }}>
-          CSQAU scoring access
-        </div>
-        {unlocked ? (
-          <p style={{ margin: 0, fontSize: 13, color: "var(--nrs-gray-700)" }}>
-            Scoring unlocked. Score fields and the total are shown below.
-          </p>
-        ) : (
-          <>
-            <p style={{ margin: "0 0 12px", fontSize: 13, color: "var(--nrs-gray-700)" }}>
-              Scores are entered only by the visiting Customer Service Quality Assurance Unit checker.
-              Enter the CSQAU access code to show the score fields.
-            </p>
-            <div style={{ display: "flex", gap: 12, alignItems: "flex-end", flexWrap: "wrap" }}>
-              <div style={{ flex: "1 1 220px" }}>
-                <TextField
-                  label="Access code"
-                  type="password"
-                  value={codeInput}
-                  onChange={setCodeInput}
-                  error={unlockError ?? undefined}
-                />
-              </div>
-              <button
-                type="button"
-                className="nrs-btn nrs-btn--outline"
-                style={{ fontSize: 13, padding: "12px 16px" }}
-                disabled={unlocking || codeInput === ""}
-                onClick={unlock}
-              >
-                {unlocking ? "Checking…" : "Unlock scoring"}
-              </button>
-            </div>
-          </>
-        )}
+      <div className="nrs-scorer-banner">
+        <p className="nrs-scorer-banner__text">
+          Officers: just fill in the checklist below and submit. Scorers use this button (the
+          scoring page asks for a passcode).
+        </p>
+        <Link href="/staff/score" className="nrs-scorer-banner__link">
+          CSQAU scorer? Open the scoring page
+        </Link>
       </div>
 
       <div className="nrs-form-group">
@@ -247,13 +146,12 @@ export function StaffForm() {
 
       <div className="nrs-form-divider" />
 
-      <div className={`nrs-check-table${unlocked ? " nrs-check-table--scored" : ""}`}>
+      <div className="nrs-check-table">
         <div className="nrs-check-head" aria-hidden="true">
           <div>S/N</div>
           <div>Issues</div>
           <div>Yes / No</div>
           <div>Remarks / actions required</div>
-          {unlocked && <div>Score (%)</div>}
         </div>
 
         {SECTIONS.map((section, i) => (
@@ -293,19 +191,6 @@ export function StaffForm() {
                 onChange={(e) => setValue(`sections.${i}.remarks`, e.target.value)}
               />
             </div>
-
-            {unlocked && (
-              <div className="nrs-check-score">
-                <span className="nrs-check-cell__label">Score (%)</span>
-                <TextField
-                  type="number"
-                  value={values.sections[i]?.score ?? ""}
-                  onChange={(v) => setValue(`sections.${i}.score`, v, { shouldValidate: true })}
-                  placeholder="0–100"
-                  error={errors.sections?.[i]?.score?.message}
-                />
-              </div>
-            )}
 
             {section.key === "s2" && (
               <div className="nrs-check-extra">
@@ -361,56 +246,6 @@ export function StaffForm() {
             )}
           </div>
         ))}
-      </div>
-
-      {unlocked && (
-        <>
-      <div
-        style={{
-          background: "var(--nrs-gray-100)",
-          border: "2px solid var(--nrs-gray-300)",
-          borderRadius: "var(--nrs-r-md)",
-          padding: "18px 24px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 28,
-        }}
-      >
-        <span style={{ fontSize: 15, fontWeight: 800, color: "var(--nrs-navy)" }}>
-          TOTAL SCORE (auto-computed average)
-        </span>
-        <span style={{ fontSize: 28, fontWeight: 800, color: "var(--nrs-red)" }}>
-          {totalScore === null ? "—" : `${totalScore}%`}
-        </span>
-      </div>
-
-      <div className="nrs-form-divider" />
-        </>
-      )}
-
-      <div className="nrs-form-group">
-        <QuestionLabel>Sign-off</QuestionLabel>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {(
-            [
-              ["checked_by", "Checked by (CSQAU)"],
-              ["head_tpsu", "Head TPSU"],
-              ["controller", "Tax Controller / State Monitor"],
-            ] as const
-          ).map(([key, title]) => (
-            <SignatoryBlock
-              key={key}
-              title={title}
-              value={values[key]}
-              onChange={(field, v) => setValue(`${key}.${field}`, v, { shouldValidate: true })}
-              errors={errors[key]}
-            />
-          ))}
-        </div>
-        <p style={{ fontSize: 12, color: "var(--nrs-gray-500)", marginTop: 10 }}>
-          Date is recorded automatically at submission time.
-        </p>
       </div>
 
       <div className="nrs-form-divider" />
