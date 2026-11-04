@@ -1,44 +1,30 @@
 import { NextRequest, NextResponse } from "next/server"
-import { verifyCsqauCode } from "@/lib/csqau-access"
-import { proxyToWebhooks } from "@/lib/webhook"
+import { getSql } from "@/lib/db"
+import { handleRouteError, jsonError, readJson } from "@/lib/staff-api"
+import { stage1Schema } from "@/lib/staff-schema"
+import { createPending } from "@/lib/visits"
 
 /*
- * Service Optimization Checklist (STAFF) → NRS_SPAFF_WEBHOOK_URL (+ _BACKUP)
- *
- * Payload keys (spreadsheet column order):
- *   submitted_at, tax_office,
- *   for each section s1..s10: sN_status (YES/NO), sN_remarks, sN_score,
- *   s2_staff (JSON array of { name, ir, rank, phone, email }),
- *   total_score,
- *   checked_by_{name,ir_rank,phone,email},
- *   head_tpsu_{name,ir_rank,phone,email},
- *   controller_{name,ir_rank,phone,email}
- *
- * Scores (sN_score, total_score) are CSQAU-only: they are accepted only when the
- * x-csqau-code header matches CSQAU_ACCESS_CODE. Unscored submissions leave those
- * columns blank.
+ * Officer submit (step 1 of the two-step checklist). No access code needed.
+ * POST { tax_office, sections: [{status, remarks?}] x10, staff: [...] }
+ *   -> 201 { id, reference }
+ * Stores a pending record; nothing is written to the sheet until the CSQAU
+ * scorer scores it (POST /api/staff/score). Any score or sign-off key is a 400.
  */
-const SCORE_KEY = /^(s\d+_score|total_score)$/
-
 export async function POST(req: NextRequest) {
-  // An unparseable body falls through so proxyToWebhooks returns its own 400.
-  const body: unknown = await req.clone().json().catch(() => null)
+  const body = await readJson(req)
+  if (body === null) return jsonError(400, "Invalid JSON body")
 
-  if (body && typeof body === "object" && Object.keys(body).some((k) => SCORE_KEY.test(k))) {
-    let authorised: boolean
-    try {
-      authorised = verifyCsqauCode(req.headers.get("x-csqau-code"))
-    } catch (err) {
-      console.error("CSQAU check failed:", err)
-      return NextResponse.json({ error: "CSQAU_ACCESS_CODE is not configured" }, { status: 503 })
-    }
-    if (!authorised) {
-      return NextResponse.json({ error: "Scoring requires CSQAU authorization" }, { status: 403 })
-    }
+  const parsed = stage1Schema.safeParse(body)
+  if (!parsed.success) return jsonError(400, parsed.error.issues[0]?.message ?? "Invalid submission")
+
+  try {
+    const { id } = await createPending(getSql(), {
+      tax_office: parsed.data.tax_office,
+      payload: parsed.data,
+    })
+    return NextResponse.json({ id, reference: `NRS-${id.slice(0, 8).toUpperCase()}` }, { status: 201 })
+  } catch (err) {
+    return handleRouteError(err)
   }
-
-  return proxyToWebhooks(req, [
-    "NRS_SPAFF_WEBHOOK_URL",
-    "NRS_SPAFF_WEBHOOK_URL_BACKUP",
-  ])
 }

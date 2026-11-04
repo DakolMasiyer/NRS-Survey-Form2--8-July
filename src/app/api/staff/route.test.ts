@@ -1,72 +1,82 @@
 // @vitest-environment node
-import { NextRequest, NextResponse } from "next/server"
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-
-vi.mock("@/lib/webhook", () => ({
-  proxyToWebhooks: vi.fn(async () => NextResponse.json({ ok: true })),
-}))
-
-import { proxyToWebhooks } from "@/lib/webhook"
+import type { PGlite } from "@electric-sql/pglite"
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
+import { DatabaseNotConfiguredError, getSql, type Sql } from "@/lib/db"
 import { POST } from "./route"
+import { count, createTestDb, post, resetDb, stage1Body } from "./test-support"
 
-function request(body: unknown, code?: string) {
-  return new NextRequest("http://localhost/api/staff", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...(code && { "x-csqau-code": code }) },
-    body: typeof body === "string" ? body : JSON.stringify(body),
-  })
-}
+vi.mock("@/lib/db", async (orig) => ({ ...(await orig<typeof import("@/lib/db")>()), getSql: vi.fn() }))
+vi.mock("@/lib/webhook", () => ({ sendToWebhooks: vi.fn() }))
 
-beforeEach(() => {
-  vi.stubEnv("CSQAU_ACCESS_CODE", "test-code")
-  vi.spyOn(console, "error").mockImplementation(() => {})
-  vi.mocked(proxyToWebhooks).mockClear()
-})
-afterEach(() => {
-  vi.unstubAllEnvs()
-  vi.restoreAllMocks()
+let db: PGlite
+let sql: Sql
+
+beforeAll(async () => {
+  ;({ db, sql } = await createTestDb())
+}, 60_000)
+afterAll(async () => {
+  await db.close()
 })
 
-describe("POST /api/staff", () => {
-  it("passes an unscored submission through without a code", async () => {
-    const res = await POST(request({ tax_office: "ETO Garki, FCT", s1_status: "YES", s1_remarks: "" }))
-    expect(res.status).toBe(200)
-    expect(proxyToWebhooks).toHaveBeenCalledTimes(1)
+beforeEach(async () => {
+  await resetDb(sql)
+  vi.mocked(getSql).mockReturnValue(sql)
+})
+afterEach(async () => {
+  vi.clearAllMocks()
+})
+
+describe("POST /api/staff (officer submit)", () => {
+  it("stores a pending record and returns id + reference", async () => {
+    const res = await POST(post("/api/staff", stage1Body()))
+    expect(res.status).toBe(201)
+    const { id, reference } = await res.json()
+    expect(reference).toBe(`NRS-${id.slice(0, 8).toUpperCase()}`)
+    const rows = await sql`SELECT status, scores FROM checklist_visits WHERE id = ${id}::uuid`
+    expect(rows[0]).toMatchObject({ status: "pending", scores: null })
   })
 
-  it("rejects a section score without a code", async () => {
-    const res = await POST(request({ s1_score: 90 }))
-    expect(res.status).toBe(403)
-    expect(proxyToWebhooks).not.toHaveBeenCalled()
+  it("never writes to the sheet", async () => {
+    const { sendToWebhooks } = await import("@/lib/webhook")
+    await POST(post("/api/staff", stage1Body()))
+    expect(sendToWebhooks).not.toHaveBeenCalled()
   })
 
-  it("rejects a total score without a code", async () => {
-    const res = await POST(request({ total_score: 90 }))
-    expect(res.status).toBe(403)
-    expect(proxyToWebhooks).not.toHaveBeenCalled()
+  it("rejects invalid JSON with 400", async () => {
+    const res = await POST(post("/api/staff", "{not json"))
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ error: "Invalid JSON body" })
   })
 
-  it("rejects scores with a wrong code", async () => {
-    const res = await POST(request({ s10_score: 90 }, "wrong"))
-    expect(res.status).toBe(403)
-    expect(proxyToWebhooks).not.toHaveBeenCalled()
+  it("rejects an invalid payload with 400 and the first issue message", async () => {
+    const res = await POST(post("/api/staff", stage1Body({ tax_office: "" })))
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ error: "Please select the tax office" })
+    expect(await count(sql, "checklist_visits")).toBe(0)
   })
 
-  it("passes scores through with the right code", async () => {
-    const res = await POST(request({ s1_score: 90, total_score: 90 }, "test-code"))
-    expect(res.status).toBe(200)
-    expect(proxyToWebhooks).toHaveBeenCalledTimes(1)
+  it.each(["total_score", "scores", "signoffs", "checked_by", "s1_score"])(
+    "rejects a score/sign-off key (%s) with 400",
+    async (key) => {
+      const res = await POST(post("/api/staff", stage1Body({ [key]: 1 })))
+      expect(res.status).toBe(400)
+      expect(await count(sql, "checklist_visits")).toBe(0)
+    },
+  )
+
+  it("rejects a score key inside a section", async () => {
+    const body = stage1Body()
+    ;(body.sections[0] as Record<string, unknown>).score = 50
+    const res = await POST(post("/api/staff", body))
+    expect(res.status).toBe(400)
   })
 
-  it("returns 503 for a scored submission when the access code is not configured", async () => {
-    vi.stubEnv("CSQAU_ACCESS_CODE", "")
-    const res = await POST(request({ s1_score: 90 }, "test-code"))
+  it("returns 503 when DATABASE_URL is not configured", async () => {
+    vi.mocked(getSql).mockImplementation(() => {
+      throw new DatabaseNotConfiguredError()
+    })
+    const res = await POST(post("/api/staff", stage1Body()))
     expect(res.status).toBe(503)
-    expect(proxyToWebhooks).not.toHaveBeenCalled()
-  })
-
-  it("leaves an unparseable body to the webhook proxy to reject", async () => {
-    await POST(request("not json"))
-    expect(proxyToWebhooks).toHaveBeenCalledTimes(1)
+    expect(await res.json()).toEqual({ error: "DATABASE_URL is not configured" })
   })
 })
