@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest"
 import { scoringSchema, stage1Schema } from "./staff-schema"
 import { SECTIONS } from "./staff-sections"
 
-const person = { name: "A", ir: "1", rank: "R", phone: "080", email: "a@x.ng" }
-const sig = { name: "S", ir_rank: "IR", phone: "081", email: "s@x.ng" }
+const person = { name: "A", ir: "1", rank: "R", phone: "08012345678", email: "a@x.ng" }
+const sig = { name: "S", ir_rank: "IR", phone: "08123456789", email: "s@x.ng" }
 const ID = "11111111-1111-4111-8111-111111111111"
 
 function stage1(over: Record<string, unknown> = {}) {
@@ -39,6 +39,18 @@ describe("stage1Schema", () => {
     expect(stage1Schema.safeParse(stage1({ sections: answeredHeading })).success).toBe(false)
     const naQuestion = base.map((s, i) => (i === 0 ? { status: "N/A" } : s))
     expect(stage1Schema.safeParse(stage1({ sections: naQuestion })).success).toBe(false)
+  })
+
+  it.each([
+    ["staff phone", { staff: [{ ...person, phone: "dc" }] }],
+    ["staff phone too short", { staff: [{ ...person, phone: "0801" }] }],
+    ["staff email", { staff: [{ ...person, email: "dsc" }] }],
+  ])("refuses a bad %s", (_name, over) => {
+    expect(stage1Schema.safeParse(stage1(over)).success).toBe(false)
+  })
+
+  it("accepts a +234 phone with spaces", () => {
+    expect(stage1Schema.safeParse(stage1({ staff: [{ ...person, phone: "+234 803 123 4567" }] })).success).toBe(true)
   })
 
   it.each(["score", "total_score", "checked_by"])("rejects an unknown top-level key: %s", (key) => {
