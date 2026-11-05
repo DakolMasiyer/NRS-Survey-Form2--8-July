@@ -24,7 +24,7 @@ export const NRS_CHANNELS: { key: ChannelKey; label: string; detail: string }[] 
   { key: "knows_ussd", label: "NRS USSD Code", detail: "*829#" },
   { key: "knows_tax_id_url", label: "Tax ID Portal", detail: "taxid.nrs.gov.ng" },
   { key: "knows_rev360", label: "Rev360 Self-Service Portal", detail: "selfservice.nrs.gov.ng" },
-  { key: "knows_einvoicing", label: "NRS E-Invoicing Platform", detail: "—" },
+  { key: "knows_einvoicing", label: "NRS E-Invoicing Platform", detail: "einvoice.nrs.gov.ng" },
 ]
 
 export type SocialPlatform = "Facebook" | "X" | "Instagram" | "LinkedIn"

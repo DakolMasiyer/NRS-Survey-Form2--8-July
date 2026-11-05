@@ -194,6 +194,15 @@ describe("ScoreApp review", () => {
     expect(document.querySelectorAll("input")).toHaveLength(SECTIONS.length + 12)
   })
 
+  it("titles the sign-off blocks with Head CSU (not TPSU)", async () => {
+    render(<ScoreApp />)
+    await openReview()
+    expect(screen.getByText("Checked by (CSQAU)")).toBeInTheDocument()
+    expect(screen.getByText("Head CSU")).toBeInTheDocument()
+    expect(screen.getByText("Tax Controller / State Monitor")).toBeInTheDocument()
+    expect(screen.queryByText(/TPSU/)).not.toBeInTheDocument()
+  })
+
   it("previews the total as scores are entered", async () => {
     render(<ScoreApp />)
     await openReview()

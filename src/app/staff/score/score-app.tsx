@@ -30,7 +30,7 @@ type ApiResult = { status: number; body: Record<string, unknown> }
 
 const SIGNOFF_TITLES: [SignoffKey, string][] = [
   ["checked_by", "Checked by (CSQAU)"],
-  ["head_tpsu", "Head TPSU"],
+  ["head_tpsu", "Head CSU"],
   ["controller", "Tax Controller / State Monitor"],
 ]
 const SIGNATORY_FIELDS: (keyof Signatory)[] = ["name", "ir_rank", "phone", "email"]
