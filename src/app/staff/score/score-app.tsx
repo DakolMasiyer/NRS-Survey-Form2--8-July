@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useRef, useState } from "react"
 import { QuestionLabel, SelectField, TextField } from "../../form-controls"
 import { TaxOfficeSelect } from "../../tax-office-select"
@@ -393,6 +394,11 @@ export function ScoreApp() {
   if (phase.kind === "picker") {
     return (
       <div>
+        <p style={{ margin: "0 0 16px", fontSize: 13 }}>
+          <Link href="/staff/overview" className="nrs-ov-link">
+            See who has submitted
+          </Link>
+        </p>
         <div className="nrs-form-group">
           <QuestionLabel>Tax Office</QuestionLabel>
           <TaxOfficeSelect key={officeKey} value={office} onChange={chooseOffice} />
