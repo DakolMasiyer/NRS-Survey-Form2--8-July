@@ -67,7 +67,9 @@ describe("TaxpayerForm layout", () => {
     const { container } = render(<TaxpayerForm />)
     expect(container.querySelector(".nrs-req")).toBeNull()
     const taxIdLabel = screen.getByText(/Does your company have a Tax ID/).closest(".nrs-form-label")!
-    expect(taxIdLabel).toHaveTextContent("(optional)")
+    expect(taxIdLabel).not.toHaveTextContent("(optional)")
+    const suggestionsLabel = screen.getByText(/What suggestions do you have/).closest(".nrs-form-label")!
+    expect(suggestionsLabel).toHaveTextContent("(optional)")
     const complianceLabel = screen.getByText("Have you been tax compliant?").closest(".nrs-form-label")!
     expect(complianceLabel).not.toHaveTextContent("(optional)")
   })
@@ -101,6 +103,12 @@ describe("TaxpayerForm layout", () => {
     expect(rows[1]).toHaveTextContent("0209 460 2700")
     expect(rows[2]).toHaveTextContent("*829#")
     expect(rows[4]).toHaveTextContent("selfservice.nrs.gov.ng")
+    expect(rows[5]).toHaveTextContent("NRS E-Invoicing Platform")
+    expect(rows[5]).toHaveTextContent("einvoice.nrs.gov.ng")
+    const einvoiceLink = within(rows[5] as HTMLElement).getByRole("link", { name: "einvoice.nrs.gov.ng" })
+    expect(einvoiceLink).toHaveAttribute("href", "https://einvoice.nrs.gov.ng/")
+    expect(einvoiceLink).toHaveAttribute("target", "_blank")
+    expect(einvoiceLink).toHaveAttribute("rel", "noopener noreferrer")
     for (const row of rows) expect(row.querySelectorAll("input[type=radio]")).toHaveLength(2)
   })
 
@@ -130,6 +138,44 @@ describe("TaxpayerForm layout", () => {
     for (const option of ["Very Comfortable", "Comfortable", "Neutral", "Uncomfortable", "Never Used"]) {
       expect(screen.getByText(option)).toBeInTheDocument()
     }
+  })
+
+  it("asks the non-compliance reasons as their own numbered Q3, worded like the paper form", () => {
+    render(<TaxpayerForm />)
+    const label = screen.getByText(/If you ticked NO above, what is the reason\?/).closest(".nrs-form-label")!
+    expect(label.querySelector(".nrs-q-num")?.textContent).toBe("3")
+    expect(screen.getByText("I don't know how to file my taxes or which taxes I owe")).toBeInTheDocument()
+    expect(
+      screen.getByText("I am worried about unfair assessments, arrears, penalties or interest")
+    ).toBeInTheDocument()
+    const ease = screen.getByText(/Does NRS make it easy/).closest(".nrs-form-label")!
+    expect(ease.querySelector(".nrs-q-num")?.textContent).toBe("4")
+  })
+
+  it("keeps the Q3 reasons disabled until Q2 is NO, and clears them when switched back to YES", () => {
+    const { container } = render(<TaxpayerForm />)
+    const reasons = () => [...container.querySelectorAll<HTMLInputElement>("input[type=checkbox]")]
+    expect(reasons()).toHaveLength(5)
+    for (const box of reasons()) expect(box).toBeDisabled()
+
+    const q2 = (v: string) => container.querySelector<HTMLInputElement>(`input[name=tax_compliant][value=${v}]`)!
+    fireEvent.click(q2("NO"))
+    for (const box of reasons()) expect(box).toBeEnabled()
+    fireEvent.click(reasons()[0])
+    expect(reasons()[0]).toBeChecked()
+
+    fireEvent.click(q2("YES"))
+    for (const box of reasons()) {
+      expect(box).toBeDisabled()
+      expect(box).not.toBeChecked()
+    }
+  })
+
+  it("still refuses NO on Q2 with no reason ticked", () => {
+    expect(schema.safeParse({ ...VALID, tax_compliant: "NO", non_compliance_reasons: [] }).success).toBe(false)
+    expect(
+      schema.safeParse({ ...VALID, tax_compliant: "NO", non_compliance_reasons: ["My tax office is far away"] }).success
+    ).toBe(true)
   })
 
   it("shows separate optional phone and email fields when the company has no Tax ID", () => {
