@@ -380,35 +380,7 @@ const links = `
   <p>The QR codes point to the short links (<span class="mono">/t</span> and <span class="mono">/s</span>). If NRS ever moves a form, the short links can be pointed somewhere new, and the printed posters keep working.</p>
 </div>`
 
-const appendix = `
-<div class="page">
-  <h2>For IT: how it is built</h2>
-  ${bar("Technical appendix")}
-  <table>
-    <tr><th style="width:26%">Part</th><th>Details</th></tr>
-    <tr><td><b>Hosting</b></td><td>Vercel, project <span class="mono">nrs-service-surveys</span>. Production deploys from the <span class="mono">main</span> branch of ${link(REPO)}.</td></tr>
-    <tr><td><b>Application</b></td><td>Next.js and TypeScript.</td></tr>
-    <tr><td><b>Database</b></td><td>Neon, added through the Vercel Marketplace. Resource <span class="mono">nrs-surveys-prod</span> for production; <span class="mono">nrs-surveys-dev</span> for preview and development.</td></tr>
-    <tr><td><b>Reports</b></td><td>Google Sheets, fed by Google Apps Script web apps. The script files are in the repository under <span class="mono">scripts/staff-sheet</span> and <span class="mono">scripts/taxpayer-sheet</span>.</td></tr>
-    <tr><td><b>DNS</b></td><td>The <span class="mono">dako.studio</span> domain is on Cloudflare. The <span class="mono">nrssurvey</span> and <span class="mono">survey</span> records point at Vercel.</td></tr>
-    <tr><td><b>Short links</b></td><td><span class="mono">/t</span> and <span class="mono">/s</span> redirect to the forms and can be re-pointed without reprinting QR codes.</td></tr>
-  </table>
-  <h3>Environment variables (names only)</h3>
-  <table>
-    <tr><td class="mono">CSQAU_ACCESS_CODE</td><td>The scoring and overview passcode</td></tr>
-    <tr><td class="mono">DATABASE_URL</td><td>Connection to the secure database</td></tr>
-    <tr><td class="mono">NRS_SPAFF_WEBHOOK_URL</td><td>Staff sheet hook (and <span class="mono">NRS_SPAFF_WEBHOOK_URL_BACKUP</span>)</td></tr>
-    <tr><td class="mono">NRS_TAXPAYER_WEBHOOK_URL</td><td>Taxpayer sheet hook (and <span class="mono">NRS_TAXPAYER_WEBHOOK_URL_BACKUP</span>)</td></tr>
-    <tr><td class="mono">SHORTLINK_TAXPAYER_URL</td><td>Where <span class="mono">/t</span> goes</td></tr>
-    <tr><td class="mono">SHORTLINK_STAFF_URL</td><td>Where <span class="mono">/s</span> goes</td></tr>
-  </table>
-  <p class="small">Values are set in the Vercel project settings and are never stored in this guide or in the repository.</p>
-  <h3>Checks before a release</h3>
-  <p><span class="mono">npm run lint</span> &nbsp;&middot;&nbsp; <span class="mono">npx tsc --noEmit</span> &nbsp;&middot;&nbsp; <span class="mono">npm run build</span> &nbsp;&middot;&nbsp; <span class="mono">npm test</span></p>
-  ${callout("<b>Contact:</b> the system administrator at the Customer Service Group.")}
-</div>`
-
-const pages = [cover, glance, taxpayer, step1, step2, step3, saved, faq, links, appendix]
+const pages = [cover, glance, taxpayer, step1, step2, step3, saved, faq, links]
 const total = pages.length
 const body = pages
   .map((p, i) => (p.includes("data-nofoot") ? p : p.replace(/<\/div>\s*$/, `${foot(i + 1, total)}</div>`)))
