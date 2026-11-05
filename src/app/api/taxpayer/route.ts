@@ -1,5 +1,16 @@
-import { NextRequest } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
+import { z } from "zod"
+import { optionalEmail, optionalIntlPhone } from "@/lib/validators"
 import { proxyToWebhooks } from "@/lib/webhook"
+
+// Same contact rules as the form, enforced here so a direct call cannot write junk
+// into the sheet. Other fields pass through untouched.
+const contactSchema = z.looseObject({
+  phone: optionalIntlPhone(50),
+  email: optionalEmail(200),
+  contact_email: optionalEmail(200),
+})
+const MAX_BODY_CHARS = 50_000
 
 /*
  * Taxpayer Satisfaction Survey → NRS_TAXPAYER_WEBHOOK_URL (+ _BACKUP)
@@ -17,6 +28,25 @@ import { proxyToWebhooks } from "@/lib/webhook"
  * Column list lives in src/lib/taxpayer-columns.ts.
  */
 export async function POST(req: NextRequest) {
+  let text: string
+  try {
+    text = await req.clone().text()
+  } catch {
+    return NextResponse.json({ error: "Invalid body" }, { status: 400 })
+  }
+  if (text.length > MAX_BODY_CHARS) {
+    return NextResponse.json({ error: "Submission is too large" }, { status: 413 })
+  }
+  let body: unknown
+  try {
+    body = JSON.parse(text)
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
+  }
+  const checked = contactSchema.safeParse(body)
+  if (!checked.success) {
+    return NextResponse.json({ error: checked.error.issues[0]?.message ?? "Invalid submission" }, { status: 400 })
+  }
   return proxyToWebhooks(req, [
     "NRS_TAXPAYER_WEBHOOK_URL",
     "NRS_TAXPAYER_WEBHOOK_URL_BACKUP",

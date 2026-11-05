@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { NOT_APPLICABLE, SECTIONS } from "./staff-sections"
 import { isValidTaxOffice } from "./tax-offices"
+import { requiredEmail, requiredNgPhone } from "./validators"
 
 const required = z.string().min(1, "Required")
 
@@ -8,15 +9,15 @@ export const staffMemberSchema = z.object({
   name: required,
   ir: required,
   rank: required,
-  phone: required,
-  email: required,
+  phone: requiredNgPhone,
+  email: requiredEmail,
 })
 
 export const signatorySchema = z.object({
   name: required,
   ir_rank: required,
-  phone: required,
-  email: required,
+  phone: requiredNgPhone,
+  email: requiredEmail,
 })
 
 // Step 1 (officer): answers only. `.strict()` rejects any extra key, in

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
-import { describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { TaxpayerForm, schema } from "./taxpayer-form"
 
 const VALID = {
@@ -19,14 +19,24 @@ const VALID = {
   knows_social_media: "YES",
 }
 
+afterEach(() => vi.unstubAllGlobals())
+
 describe("taxpayer schema", () => {
   it("accepts a response with Section A left entirely empty", () => {
     expect(schema.safeParse(VALID).success).toBe(true)
   })
 
+  it("accepts blank optional phone/email but refuses typed junk", () => {
+    expect(schema.safeParse({ ...VALID, phone: "", email: "", contact_email: "" }).success).toBe(true)
+    expect(schema.safeParse({ ...VALID, phone: "fve" }).success).toBe(false)
+    expect(schema.safeParse({ ...VALID, email: "efv" }).success).toBe(false)
+    expect(schema.safeParse({ ...VALID, contact_email: "c df f" }).success).toBe(false)
+    expect(schema.safeParse({ ...VALID, phone: "+1 415 555 2671", email: "a@b.com", contact_email: "x@y.ng" }).success).toBe(true)
+  })
+
   it("accepts has_tax_id blank or answered", () => {
     expect(schema.safeParse({ ...VALID, has_tax_id: "" }).success).toBe(true)
-    expect(schema.safeParse({ ...VALID, has_tax_id: "NO", phone: "0801", email: "a@b.ng" }).success).toBe(true)
+    expect(schema.safeParse({ ...VALID, has_tax_id: "NO", phone: "08011112222", email: "a@b.ng" }).success).toBe(true)
   })
 
   it("still requires the tax office, and only a listed one", () => {
@@ -127,5 +137,21 @@ describe("TaxpayerForm layout", () => {
     fireEvent.click(screen.getAllByLabelText("NO")[0])
     expect(screen.getByText("Phone number (optional)")).toBeInTheDocument()
     expect(screen.getByText("Email address (optional)")).toBeInTheDocument()
+  })
+
+  it("shows a message under bad optional phone/email entries and sends nothing", async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal("fetch", fetchMock)
+    render(<TaxpayerForm />)
+    fireEvent.click(screen.getAllByLabelText("NO")[0])
+    const phone = document.querySelector<HTMLInputElement>("input[type=tel]")!
+    const [email, contactEmail] = Array.from(document.querySelectorAll<HTMLInputElement>("input[type=email]"))
+    fireEvent.change(phone, { target: { value: "fve" } })
+    fireEvent.change(email, { target: { value: "efv" } })
+    fireEvent.change(contactEmail, { target: { value: "c df f" } })
+    fireEvent.click(screen.getByRole("button", { name: /submit/i }))
+    expect(await screen.findByText(/valid phone number/)).toBeInTheDocument()
+    expect((await screen.findAllByText(/valid email address/)).length).toBe(2)
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 })

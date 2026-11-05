@@ -76,12 +76,25 @@ describe("StaffForm (officer, step 1)", () => {
         status: SECTIONS[i].listOnly ? "N/A" : i % 2 ? "NO" : "YES",
         remarks: i ? "note" : undefined,
       })),
-      staff: [{ name: "Ada", ir: "1", rank: "Officer", phone: "080", email: "a@b.c" }],
+      staff: [{ name: "Ada", ir: "1", rank: "Officer", phone: "08012345678", email: "a@b.ng" }],
     })
     expect(stage1Schema.safeParse(payload).success).toBe(true)
     expect(payload.sections).toHaveLength(10)
     expect(payload.sections[0].remarks).toBe("")
     expect(JSON.stringify(payload)).not.toMatch(/score|total|checked_by|head_tpsu|controller/)
+  })
+
+  it("refuses a bad staff phone or email, shows the message and sends nothing", async () => {
+    const fetchMock = mockFetch(201, { id: "x", reference: "NRS-X" })
+    const { container } = render(<StaffForm />)
+    fillValidForm(container)
+    const staffInputs = container.querySelectorAll<HTMLInputElement>(".nrs-check-extra input")
+    fireEvent.change(staffInputs[3], { target: { value: "dc" } })
+    fireEvent.change(staffInputs[4], { target: { value: "dsc" } })
+    fireEvent.click(screen.getByRole("button", { name: /submit checklist/i }))
+    expect(await screen.findByText(/valid Nigerian phone number/)).toBeInTheDocument()
+    expect(screen.getByText(/valid email address/)).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it("shows validation errors and does not call fetch for an incomplete form", async () => {

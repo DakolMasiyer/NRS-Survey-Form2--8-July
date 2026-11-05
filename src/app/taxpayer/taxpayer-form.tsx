@@ -15,6 +15,7 @@ import {
 } from "../form-controls"
 import { TaxOfficeSelect } from "../tax-office-select"
 import { isValidTaxOffice } from "@/lib/tax-offices"
+import { optionalEmail, optionalIntlPhone } from "@/lib/validators"
 import { NRS_CHANNELS, NRS_CONTACT, NRS_SOCIALS, REV360_COMFORT_OPTIONS } from "@/lib/nrs-channels"
 import { SocialIcon } from "../social-icon"
 
@@ -51,8 +52,8 @@ export const schema = z
     rc_bn: z.string().max(100).optional(),
     address: z.string().max(300).optional(),
     line_of_business: z.string().max(200).optional(),
-    phone: z.string().max(50).optional(),
-    email: z.string().max(200).optional(),
+    phone: optionalIntlPhone(50),
+    email: optionalEmail(200),
     tax_compliant: z.string().min(1, "Please select an option"),
     non_compliance_reasons: z.array(z.string()),
     non_compliance_other: z.string().max(500).optional(),
@@ -69,7 +70,7 @@ export const schema = z
     knows_einvoicing: z.string().min(1, "Please select an option"),
     knows_social_media: z.string().min(1, "Please select an option"),
     suggestions: z.string().max(1000).optional(),
-    contact_email: z.string().max(200).optional(),
+    contact_email: optionalEmail(200),
   })
   .superRefine((data, ctx) => {
     if (data.tax_compliant === "NO" && data.non_compliance_reasons.length === 0) {
@@ -215,8 +216,8 @@ export function TaxpayerForm() {
             <TextField label="RC / BN Number (optional)" value={values.rc_bn ?? ""} onChange={set("rc_bn")} />
             <TextField label="Business address (optional)" value={values.address ?? ""} onChange={set("address")} />
             <TextField label="Line of business (optional)" value={values.line_of_business ?? ""} onChange={set("line_of_business")} />
-            <TextField label="Phone number (optional)" type="tel" value={values.phone ?? ""} onChange={set("phone")} />
-            <TextField label="Email address (optional)" type="email" value={values.email ?? ""} onChange={set("email")} />
+            <TextField label="Phone number (optional)" type="tel" value={values.phone ?? ""} onChange={set("phone")} error={errors.phone?.message} />
+            <TextField label="Email address (optional)" type="email" value={values.email ?? ""} onChange={set("email")} error={errors.email?.message} />
           </div>
         )}
       </div>
@@ -416,6 +417,7 @@ export function TaxpayerForm() {
           type="email"
           value={values.contact_email ?? ""}
           onChange={set("contact_email")}
+          error={errors.contact_email?.message}
           placeholder="you@example.com"
         />
       </div>

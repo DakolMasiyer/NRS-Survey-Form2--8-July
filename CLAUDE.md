@@ -20,6 +20,7 @@ Design system and webhook pattern ported from `nrs-taxpayer-feedback`.
   - CSQAU routes (`/api/staff/unlock|pending|score|overview`) need header `x-csqau-code` (`CSQAU_ACCESS_CODE`); 5 wrong tries per IP hash → 15-minute lockout (`access_attempts`). Gate: `requireCsqau` in `src/lib/staff-api.ts`.
   - Scoring is atomic (`UPDATE … WHERE status='pending'`), the server recomputes the total, then the finished row goes to `NRS_SPAFF_WEBHOOK_URL` (+ `_BACKUP`) → staff Google Sheet (last column `submission_id`); resend is idempotent.
   - Overview (`src/lib/overview.ts`): month = Africa/Lagos month; counts and dates only, never PII.
+- Input rules live in `src/lib/validators.ts` and are used by the forms and the servers: email format; staff and sign-off phones must be Nigerian numbers; taxpayer phone is looser (international); optional fields may be blank but must be valid if typed. `/api/taxpayer` enforces the contact rules server-side.
 - Never run local POST tests with live webhook env vars set; blank them first.
 - Guide for NRS users: `docs/guide/NRS-Service-Surveys-Guide.pdf` (rebuild: `node scripts/make-guide.ts && bash scripts/render-guide.sh`; never put the passcode in it).
 

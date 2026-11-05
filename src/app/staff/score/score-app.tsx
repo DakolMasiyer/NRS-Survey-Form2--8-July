@@ -8,6 +8,7 @@ import { SignatoryBlock } from "../signatory-block"
 import { averageScore } from "@/lib/score"
 import { SECTIONS } from "@/lib/staff-sections"
 import { scoringSchema, type Signatory } from "@/lib/staff-schema"
+import { emailProblem, ngPhoneProblem } from "@/lib/validators"
 
 type VisitSummary = { id: string; submitted_at: string; first_staff_name: string }
 type StaffMember = { name: string; ir: string; rank: string; phone: string; email: string }
@@ -249,8 +250,17 @@ export function ScoreApp() {
     const nextSignoffErrors: Partial<Record<SignoffKey, FieldErrors>> = {}
     for (const [key] of SIGNOFF_TITLES) {
       for (const f of SIGNATORY_FIELDS) {
-        if (signoffs[key][f].trim() === "") {
-          nextSignoffErrors[key] = { ...nextSignoffErrors[key], [f]: { message: "Required" } }
+        const value = signoffs[key][f]
+        const message =
+          value.trim() === ""
+            ? "Required"
+            : f === "phone"
+              ? ngPhoneProblem(value)
+              : f === "email"
+                ? emailProblem(value)
+                : undefined
+        if (message) {
+          nextSignoffErrors[key] = { ...nextSignoffErrors[key], [f]: { message } }
         }
       }
     }

@@ -85,9 +85,11 @@ function fillScores(value: string) {
   for (const input of scoreInputs()) fireEvent.change(input, { target: { value } })
 }
 function fillSignoffs() {
-  for (const input of document.querySelectorAll<HTMLInputElement>("input[type=text]")) {
-    fireEvent.change(input, { target: { value: "Some Value" } })
-  }
+  // Each sign-off block has four text inputs: name, IR / rank, phone, email.
+  const values = ["Some Value", "Some Value", "0803 123 4567", "someone@nrs.gov.ng"]
+  document.querySelectorAll<HTMLInputElement>("input[type=text]").forEach((input, i) => {
+    fireEvent.change(input, { target: { value: values[i % 4] } })
+  })
 }
 
 describe("ScoreApp gate", () => {
@@ -216,6 +218,21 @@ describe("ScoreApp review", () => {
     fillSignoffs()
     fireEvent.click(screen.getByRole("button", { name: "Save scores" }))
     expect(await screen.findByText("Score must be between 0 and 100")).toBeInTheDocument()
+    expect(callsTo("/api/staff/score")).toHaveLength(0)
+  })
+
+  it("refuses a bad sign-off phone or email in all three blocks and sends nothing", async () => {
+    render(<ScoreApp />)
+    await openReview()
+    fillScores("50")
+    fillSignoffs()
+    document.querySelectorAll<HTMLInputElement>("input[type=text]").forEach((input, i) => {
+      if (i % 4 === 2) fireEvent.change(input, { target: { value: "wec" } })
+      if (i % 4 === 3) fireEvent.change(input, { target: { value: "ec" } })
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Save scores" }))
+    expect((await screen.findAllByText(/valid Nigerian phone number/)).length).toBe(3)
+    expect(screen.getAllByText(/valid email address/).length).toBe(3)
     expect(callsTo("/api/staff/score")).toHaveLength(0)
   })
 

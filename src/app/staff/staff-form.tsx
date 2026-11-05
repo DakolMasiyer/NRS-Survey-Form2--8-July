@@ -14,14 +14,15 @@ import {
 } from "../form-controls"
 import { TaxOfficeSelect } from "../tax-office-select"
 import { isValidTaxOffice } from "@/lib/tax-offices"
+import { requiredEmail, requiredNgPhone } from "@/lib/validators"
 import { NOT_APPLICABLE, SECTIONS, YES_NO } from "@/lib/staff-sections"
 
 const staffSchema = z.object({
   name: z.string().min(1, "Required"),
   ir: z.string().min(1, "Required"),
   rank: z.string().min(1, "Required"),
-  phone: z.string().min(1, "Required"),
-  email: z.string().min(1, "Required"),
+  phone: requiredNgPhone,
+  email: requiredEmail,
 })
 
 const formSchema = z.object({

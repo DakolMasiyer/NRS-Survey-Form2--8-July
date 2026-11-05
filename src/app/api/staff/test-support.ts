@@ -33,12 +33,12 @@ export function stage1Body(overrides: Record<string, unknown> = {}) {
   return {
     tax_office: OFFICE,
     sections: SECTIONS.map((s) => ({ status: s.listOnly ? "N/A" : "YES" })),
-    staff: [{ name: "Ada Obi", ir: "123", rank: "Officer", phone: "0801", email: "ada@example.test" }],
+    staff: [{ name: "Ada Obi", ir: "123", rank: "Officer", phone: "08011112222", email: "ada@example.test" }],
     ...overrides,
   }
 }
 
-const sig = (n: string) => ({ name: n, ir_rank: `${n}-rank`, phone: "0800", email: `${n}@example.test` })
+const sig = (n: string) => ({ name: n, ir_rank: `${n}-rank`, phone: "08000000000", email: `${n}@example.test` })
 export function scoringBody(id: string, overrides: Record<string, unknown> = {}) {
   return {
     id,
