@@ -1,14 +1,20 @@
 # NRS Service Surveys user guide
 
-`NRS-Service-Surveys-Guide.pdf` is the plain-language guide for NRS staff (10 pages, A4).
-`guide.html` is the self-contained source that is printed to PDF (logo, headline font, QR codes and screenshots are embedded).
+Two PDFs are built from one script (`scripts/make-guide.ts`), for two audiences:
 
-## Rebuild
+| Variant | File | Audience | Committed? |
+|---|---|---|---|
+| general | `docs/guide/NRS-Service-Surveys-Guide.pdf` (8 pages, A4) | Offices and staff | Yes |
+| admin | `docs/guide/admin-build/NRS-Service-Surveys-Admin-Guide.pdf` (11 pages) | The NRS administrator | **No** (git-ignored) |
+
+The general copy has no passcode, no Google Sheets links, no hosting or database details. The admin copy adds the scoring passcode, both sheet links, where things are saved, who-to-change-what and an IT page, and is marked confidential on every page.
+
+## Rebuild (Node 24, after `npm ci`)
 ```
-node scripts/make-guide.ts      # writes docs/guide/guide.html (needs Node 24 and `npm ci`)
-scripts/render-guide.sh         # prints the PDF with headless Chrome, then checks for forbidden text
+node scripts/make-guide.ts general && bash scripts/render-guide.sh general
+GUIDE_PASSCODE='<the passcode>' node scripts/make-guide.ts admin && GUIDE_PASSCODE='<the passcode>' bash scripts/render-guide.sh admin
 ```
-`render-guide.sh` fails if the PDF text contains a passcode-like or secret-like string. The guide must never contain a passcode, token, webhook address, database connection string or personal contact detail; environment variables appear by name only.
+The passcode is only ever read from the `GUIDE_PASSCODE` environment variable (the admin build fails without it). Never put it in a file, commit it or paste it into chat. `render-guide.sh` prints page count and font checks and fails if the general PDF contains a secret-like or vendor string, or if the admin PDF is missing the passcode or the sheet links.
 
 ## Images
-`img/` holds screenshots of the live public pages (`/taxpayer`, `/staff`, `/staff/score` gate), taken with headless Chrome (GET only). The Submissions overview and the scoring review screen are drawn in HTML and marked SAMPLE. Replace the overview mock-up with a real screenshot once the page is live.
+`img/` holds screenshots of the live pages (`/taxpayer`, `/staff`, `/staff/score` gate, a sample of `/staff/overview`), taken with headless Chrome (GET only; the overview shot uses demo data). The scoring review screen is drawn in HTML and marked SAMPLE.
