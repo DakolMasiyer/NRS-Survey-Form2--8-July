@@ -177,7 +177,7 @@ const glance = `
     <div class="col qrbox">${qrTaxpayer}<p class="qrcap"><b>Taxpayer survey</b><br>Public. Scan with a phone camera.</p></div>
     <div class="col qrbox">${qrStaff}<p class="qrcap"><b>Service Optimization Checklist</b><br>For NRS staff only.</p></div>
   </div>
-  ${callout("<b>Good to know:</b> a QR code is just a quick way to open a link. If a code does not scan, type the link instead. All the links are on page 9.")}
+  ${callout("<b>Good to know:</b> a QR code is just a quick way to open a link. If a code does not scan, type the link instead. All the links are on the last page.")}
 </div>`
 
 const taxpayer = `
@@ -286,56 +286,15 @@ const step3 = `
   <ul>
     <li>It shows <b>counts and dates only</b>.</li>
     <li>It <b>never shows names</b> of officers or scorers, and it does not show the scores or remarks.</li>
-    <li>It is a progress tracker. The detailed results are in the staff Google Sheet (page 7).</li>
+    <li>It is a progress tracker. The detailed results are in the staff Google Sheet.</li>
   </ul>
   ${passcodeBox()}
-</div>`
-
-const flowSvg = `
-<svg viewBox="0 0 700 372" width="100%" role="img" aria-label="Where answers are saved" font-family="Tahoma, Verdana, sans-serif">
-  <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#0D1A3A"/></marker></defs>
-  <style>.bx{fill:#fff;stroke:#0D1A3A;stroke-width:1.6}.rd{fill:#b91c1c;stroke:none}.t{font-size:12.5px;fill:#0D1A3A;text-anchor:middle}.tb{font-size:13px;font-weight:bold;fill:#0D1A3A;text-anchor:middle}.tw{font-size:13px;font-weight:bold;fill:#fff;text-anchor:middle}.sm{font-size:10.5px;fill:#7D848A;text-anchor:middle}.ln{stroke:#0D1A3A;stroke-width:1.8;fill:none;marker-end:url(#ar)}</style>
-  <text x="10" y="18" font-size="12" font-weight="bold" fill="#b91c1c" letter-spacing="1.2">TAXPAYER SURVEY</text>
-  <rect class="bx" x="10" y="28" width="190" height="52" rx="4"/><text class="tb" x="105" y="50">Taxpayer answers</text><text class="sm" x="105" y="67">Submit on phone</text>
-  <path class="ln" d="M200 54H260"/>
-  <rect class="rd" x="262" y="28" width="428" height="52" rx="4"/><text class="tw" x="476" y="50">Taxpayer Google Sheet</text><text x="476" y="67" font-size="10.5" fill="#fff" text-anchor="middle">one row per response</text>
-  <line x1="10" y1="108" x2="690" y2="108" stroke="#D1D5DB" stroke-dasharray="4 4"/>
-  <text x="10" y="132" font-size="12" font-weight="bold" fill="#b91c1c" letter-spacing="1.2">SERVICE OPTIMIZATION CHECKLIST</text>
-  <rect class="bx" x="10" y="146" width="150" height="62" rx="4"/><text class="tb" x="85" y="170">Step 1</text><text class="t" x="85" y="188">Officer submits</text>
-  <path class="ln" d="M160 177H218"/>
-  <rect class="bx" x="220" y="146" width="190" height="62" rx="4"/><text class="tb" x="315" y="170">Secure database</text><text class="sm" x="315" y="189">status: WAITING</text>
-  <path class="ln" d="M410 177H468"/>
-  <rect class="bx" x="470" y="146" width="150" height="62" rx="4"/><text class="tb" x="545" y="170">Step 2</text><text class="t" x="545" y="188">CSQAU scores</text>
-  <path class="ln" d="M545 208V250"/>
-  <path class="ln" d="M545 229H335V250"/>
-  <text class="sm" x="564" y="240" text-anchor="start">after scoring</text>
-  <rect class="bx" x="220" y="252" width="230" height="62" rx="4"/><text class="tb" x="335" y="276">Secure database</text><text class="sm" x="335" y="295">status: SCORED (kept as a backup)</text>
-  <rect class="rd" x="470" y="252" width="220" height="62" rx="4"/><text class="tw" x="580" y="276">Staff Google Sheet</text><text x="580" y="295" font-size="10.5" fill="#fff" text-anchor="middle">finished row + reference</text>
-  <text class="sm" x="350" y="346">The scoring step writes to both places at once.</text>
-</svg>`
-
-const saved = `
-<div class="page">
-  <h2>Where things are saved</h2>
-  <p class="lead">Nothing is stored on your phone or computer. Everything is saved online, as soon as you press Submit or Save.</p>
-  ${bar("Section 6 &mdash; Where things are saved")}
-  ${flowSvg}
-  <h3>Waiting and scored</h3>
-  <ul>
-    <li><b>Waiting.</b> The officer has submitted. Nobody has scored it yet. It is kept safely in the secure database.</li>
-    <li><b>Scored.</b> A CSQAU scorer has saved the scores. The finished record is kept in the secure database as a backup <b>and</b> added as a finished row in the staff Google Sheet.</li>
-  </ul>
-  <h3>The reference code</h3>
-  <p>Each submission gets a reference such as <span class="mono">NRS-1A2B3C4D</span>. It follows the submission everywhere: on the scoring page, in the secure database and as a column in the staff Google Sheet. Quote it if you need help.</p>
-  <h3>The Google Sheets are the reports</h3>
-  <p>NRS uses the two Google Sheets as its reports. They are read by invitation only. The secure database is the safety copy behind the scenes: you never need to open it.</p>
-  ${callout("<b>Why two copies?</b> If the sheet is briefly unavailable, nothing is lost. The scores are in the secure database, and the scorer can press <b>Resend</b> later.")}
 </div>`
 
 const faq = `
 <div class="page">
   <h2>Who sees what, and fixes</h2>
-  ${bar("Section 7 &mdash; Who can see what")}
+  ${bar("Section 6 &mdash; Who can see what")}
   <table>
     <tr><th>Who</th><th>Taxpayer survey</th><th>Checklist form</th><th>Scoring page</th><th>Overview page</th><th>Google Sheets</th></tr>
     <tr><td><b>The public</b></td><td>Fill in</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
@@ -355,7 +314,7 @@ const faq = `
   <h3>&ldquo;Sheet update failed&rdquo; and the Resend button</h3>
   <p>Your scores are safe. Press <b>Resend to sheet</b>. If it still fails, wait a few minutes and try again, then tell the CSQAU lead.</p>
   <h3>The QR code will not scan</h3>
-  <p>Type the link instead (page 9). Hold the phone steady, in good light, about 20 cm from the code.</p>
+  <p>Type the link instead (last page). Hold the phone steady, in good light, about 20 cm from the code.</p>
   <h3>The page will not load</h3>
   <p>Try again. The first load after a quiet period can be slow. Wait a few seconds and refresh.</p>
 </div>`
@@ -364,7 +323,7 @@ const links = `
 <div class="page">
   <h2>All the links</h2>
   <p class="lead">Every link below is clickable in the PDF.</p>
-  ${bar("Section 8 &mdash; All the links")}
+  ${bar("Section 7 &mdash; All the links")}
   <table>
     <tr><th style="width:23%">What</th><th>Link</th><th style="width:19%">Who can open it</th></tr>
     <tr><td><b>Taxpayer survey</b></td><td>${link(BASE + "/taxpayer")}<br><span class="small">Short link, used by the QR: ${link(BASE + "/t")}</span></td><td>Public</td></tr>
@@ -374,13 +333,12 @@ const links = `
     <tr><td><b>Taxpayer sheet</b></td><td>${link(TAXPAYER_SHEET)}</td><td>By invitation only</td></tr>
     <tr><td><b>Staff sheet</b></td><td>${link(STAFF_SHEET)}</td><td>By invitation only</td></tr>
   </table>
-  ${callout("<b>Old address.</b> The earlier address, <b>survey.dako.studio</b>, still works. It forwards to the new one, so QR codes printed earlier keep working.")}
   ${passcodeBox()}
   <h3>Printed QR codes</h3>
   <p>The QR codes point to the short links (<span class="mono">/t</span> and <span class="mono">/s</span>). If NRS ever moves a form, the short links can be pointed somewhere new, and the printed posters keep working.</p>
 </div>`
 
-const pages = [cover, glance, taxpayer, step1, step2, step3, saved, faq, links]
+const pages = [cover, glance, taxpayer, step1, step2, step3, faq, links]
 const total = pages.length
 const body = pages
   .map((p, i) => (p.includes("data-nofoot") ? p : p.replace(/<\/div>\s*$/, `${foot(i + 1, total)}</div>`)))
