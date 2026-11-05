@@ -122,3 +122,8 @@ Reuse: `verifyCsqauCode` (`src/lib/csqau-access.ts`), `averageScore` (`src/lib/s
 4. Apply `db/migrations/001_checklist_visits.sql` to the **production** Neon database (additive) as part of the production release.
 5. Production deploy (explicit owner go-ahead): also activates the `survey.dako.studio` -> `nrssurvey.dako.studio` redirect. Smoke test with one obvious test record, then remove it.
 6. Merge to `main`; owner revokes the Cloudflare token used for DNS.
+
+## Release 2 (2026-11-05): submissions overview + guide
+- Added `/staff/overview` and `POST /api/staff/overview` (month picker, summary tiles, state/status filters, 199 offices grouped by state; same passcode and lockout; no PII), `officeActivity`/`activityMonths` in `src/lib/visits.ts`, `src/lib/overview.ts`, link "See who has submitted" on the scorer page.
+- Added the NRS user guide PDF under `docs/guide/` (builder `scripts/make-guide.ts`, `scripts/render-guide.sh`).
+- Verified: full gate (tsc, lint, 262 tests, build); local run on the dev database with demo visits (month boundary at Lagos midnight, statuses, 403/400 gates, no staff names in the response) and a browser walkthrough; demo rows deleted afterwards. No database change in this release.

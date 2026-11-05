@@ -125,6 +125,7 @@ const qrStaff = inlineSvg("docs/qr/staff-checklist-qr-only.svg", "qr")
 const shotStaff = imgDataUrl("docs/guide/img/staff-form.png")
 const shotGate = imgDataUrl("docs/guide/img/score-gate.png")
 const shotTaxpayer = imgDataUrl("docs/guide/img/taxpayer-form.png")
+const shotOverview = imgDataUrl("docs/guide/img/overview-sample.png")
 
 const cover = `
 <div class="page cover" data-nofoot>
@@ -272,29 +273,15 @@ const step3 = `
   <p class="lead">One page shows, month by month, which offices have submitted and which are still waiting.</p>
   ${bar("Section 5 &mdash; Checklist, Step 3 (Submissions overview)")}
   <p>The Submissions overview page is at ${link(BASE + "/staff/overview", "nrssurvey.dako.studio/staff/overview")}. It uses <b>the same passcode as the scorers</b>.</p>
-  ${callout("<b>Status:</b> this page is being finished now and will be live shortly. This guide describes it as designed. The picture below is a drawn sample, not real data.")}
+  ${callout("<b>Sample data.</b> The picture below is the real page, filled with made-up demonstration numbers so that no real office results are shown.")}
   <ol class="steps">
     <li><b>Pick a month.</b></li>
     <li>See how many of the <b>199 offices</b> have submitted.</li>
     <li>See which are <b>waiting to be scored</b>, which are <b>scored</b>, and which have <b>not submitted</b>.</li>
     <li><b>Filter</b> by state or by status.</li>
   </ol>
-  <div class="sample"><span class="sample__tag">SAMPLE</span>
-    <p style="margin:0 0 2mm"><b>Submissions overview</b> &nbsp;<span class="small">Month: November 2026 &nbsp;|&nbsp; State: All &nbsp;|&nbsp; Status: All</span></p>
-    <div class="tiles">
-      <div class="tile"><b>199</b><span>Offices</span></div>
-      <div class="tile"><b>142</b><span>Submitted</span></div>
-      <div class="tile"><b>31</b><span>Waiting</span></div>
-      <div class="tile"><b>111</b><span>Scored</span></div>
-      <div class="tile"><b>57</b><span>Not submitted</span></div>
-    </div>
-    <table style="margin:0;font-size:8.6pt">
-      <tr><th>State</th><th>Offices</th><th>Submitted</th><th>Status of latest</th><th>Date</th></tr>
-      <tr><td>Sample State A</td><td>12</td><td>10</td><td><span class="pill g">Scored</span></td><td>12 Nov</td></tr>
-      <tr><td>Sample State B</td><td>8</td><td>5</td><td><span class="pill a">Waiting</span></td><td>14 Nov</td></tr>
-      <tr><td>Sample State C</td><td>6</td><td>0</td><td><span class="pill r">Not submitted</span></td><td>&mdash;</td></tr>
-    </table>
-  </div>
+  <img class="shot" src="${shotOverview}" alt="The Submissions overview page, filtered to offices waiting to be scored (sample data)">
+  <p class="small">The Submissions overview page with sample data, filtered to offices that are waiting to be scored.</p>
   ${bar("What this page shows, and does not show")}
   <ul>
     <li>It shows <b>counts and dates only</b>.</li>
@@ -383,7 +370,7 @@ const links = `
     <tr><td><b>Taxpayer survey</b></td><td>${link(BASE + "/taxpayer")}<br><span class="small">Short link, used by the QR: ${link(BASE + "/t")}</span></td><td>Public</td></tr>
     <tr><td><b>Service Optimization Checklist</b></td><td>${link(BASE + "/staff")}<br><span class="small">Short link, used by the QR: ${link(BASE + "/s")}</span></td><td>Public link, meant for NRS staff</td></tr>
     <tr><td><b>Scoring page</b></td><td>${link(BASE + "/staff/score")}</td><td>Passcode needed</td></tr>
-    <tr><td><b>Submissions overview</b></td><td>${link(BASE + "/staff/overview")}<br><span class="small">Live shortly.</span></td><td>Passcode needed</td></tr>
+    <tr><td><b>Submissions overview</b></td><td>${link(BASE + "/staff/overview")}</td><td>Passcode needed</td></tr>
     <tr><td><b>Taxpayer sheet</b></td><td>${link(TAXPAYER_SHEET)}</td><td>By invitation only</td></tr>
     <tr><td><b>Staff sheet</b></td><td>${link(STAFF_SHEET)}</td><td>By invitation only</td></tr>
   </table>
