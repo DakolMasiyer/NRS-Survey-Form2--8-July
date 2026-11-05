@@ -109,6 +109,48 @@ export function TextField({
   )
 }
 
+export function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+  placeholder,
+  disabled,
+  error,
+}: {
+  label?: string
+  value: string
+  onChange: (v: string) => void
+  options: { value: string; label: string }[]
+  placeholder: string
+  disabled?: boolean
+  error?: string
+}) {
+  return (
+    <div style={{ width: "100%" }}>
+      {label && (
+        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--nrs-gray-700)", marginBottom: 6 }}>
+          {label}
+        </div>
+      )}
+      <select
+        className="nrs-select"
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        <option value="">{placeholder}</option>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      {error && <p className="nrs-field-error">{error}</p>}
+    </div>
+  )
+}
+
 export function QuestionLabel({
   num,
   children,
@@ -123,14 +165,20 @@ export function QuestionLabel({
       {num !== undefined && <span className="nrs-q-num">{num}</span>}
       <span>
         {children}
-        {optional ? (
+        {optional && (
           <span style={{ fontWeight: 400, color: "var(--nrs-gray-500)", marginLeft: 4 }}>
             (optional)
           </span>
-        ) : (
-          <span className="nrs-req">*</span>
         )}
       </span>
+    </div>
+  )
+}
+
+export function SectionBar({ letter, children }: { letter: string; children: React.ReactNode }) {
+  return (
+    <div className="nrs-section-bar">
+      Section {letter} — {children}
     </div>
   )
 }

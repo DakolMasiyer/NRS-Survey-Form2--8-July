@@ -12,7 +12,7 @@ const SURVEYS = [
     cta: "Start Survey",
   },
   {
-    href: "/spaff",
+    href: "/staff",
     badge: "For NRS Assessors",
     title: "Service Optimization Checklist",
     body:

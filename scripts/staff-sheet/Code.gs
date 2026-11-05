@@ -1,5 +1,5 @@
-// NRS SPAFF Service Optimization Checklist — Apps Script webhook
-// Matches payload keys documented in src/app/api/spaff/route.ts
+// NRS STAFF Service Optimization Checklist — Apps Script webhook
+// Matches payload keys documented in src/app/api/staff/route.ts
 
 const SECTION_KEYS = ["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10"]
 
@@ -12,6 +12,8 @@ function buildHeaders() {
   ;["checked_by", "head_tpsu", "controller"].forEach((p) => {
     headers.push(`${p}_name`, `${p}_ir_rank`, `${p}_phone`, `${p}_email`)
   })
+  // Last column. Headers are only written to an empty sheet, so on a live sheet add this header cell by hand.
+  headers.push("submission_id")
   return headers
 }
 

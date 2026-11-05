@@ -81,6 +81,12 @@ body {
   border-bottom: 2px solid transparent;
 }
 .nrs-nav__links a:hover { color: var(--nrs-navy); border-bottom-color: var(--nrs-red); }
+/* The nav link rule above out-ranks .nrs-btn--primary and made button text dark grey on red; keep it white. */
+.nrs-nav__links a.nrs-btn--nav,
+.nrs-nav__links a.nrs-btn--nav:hover {
+  color: var(--nrs-white);
+  border-bottom-color: var(--nrs-red);
+}
 
 /* ── BUTTONS ── */
 .nrs-btn {
@@ -337,19 +343,13 @@ body {
 }
 .nrs-form-label .nrs-req { color: var(--nrs-red); margin-left: 3px; }
 .nrs-q-num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  background: var(--nrs-red);
-  color: white;
-  border-radius: 50%;
-  font-size: 12px;
+  color: var(--nrs-red);
+  font-size: 15px;
   font-weight: 800;
   margin-right: 8px;
   flex-shrink: 0;
 }
+.nrs-q-num::after { content: "."; }
 .nrs-radio-group { display: flex; flex-direction: column; gap: 10px; }
 .nrs-radio-label {
   display: flex;
@@ -416,6 +416,23 @@ body {
   min-height: 120px;
 }
 .nrs-textarea:focus { border-color: var(--nrs-red); }
+.nrs-select {
+  width: 100%;
+  height: 46px;
+  padding: 0 40px 0 16px;
+  border: 2px solid var(--nrs-gray-300);
+  border-radius: var(--nrs-r-md);
+  font-family: var(--nrs-font);
+  font-size: 14px;
+  color: var(--nrs-text);
+  background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 16px center;
+  appearance: none;
+  transition: border-color .15s;
+  outline: none;
+  cursor: pointer;
+}
+.nrs-select:focus { border-color: var(--nrs-red); }
+.nrs-select:disabled { background-color: var(--nrs-gray-100); color: var(--nrs-gray-500); cursor: not-allowed; }
 .nrs-form-divider { height: 1px; background: var(--nrs-gray-100); margin: 32px 0; }
 .nrs-btn-submit {
   background: var(--nrs-red);
@@ -548,4 +565,174 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .nrs-btn, .nrs-btn-submit, .nrs-radio-label, .nrs-star-wrap label { transition: none; }
+}
+
+/* ── LETTERHEAD (matches the paper forms) ── */
+.nrs-letterhead {
+  text-align: center;
+  padding: 36px 32px 0;
+}
+.nrs-letterhead__logo { display: block; width: min(300px, 80%); height: auto; margin: 0 auto; }
+.nrs-letterhead__tagline {
+  margin: 6px 0 14px;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--nrs-gray-700);
+}
+.nrs-letterhead__office {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--nrs-gray-700);
+  line-height: 1.7;
+}
+.nrs-letterhead__address { margin: 4px 0 0; font-size: 12px; color: var(--nrs-gray-500); }
+.nrs-letterhead__rule { border: 0; border-top: 1px solid var(--nrs-red); margin: 18px 0 24px; }
+.nrs-letterhead__title {
+  margin: 0;
+  font-size: clamp(18px, 2.6vw, 24px);
+  font-weight: 800;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--nrs-navy);
+  line-height: 1.3;
+}
+.nrs-letterhead__subtitle { margin: 8px 0 0; font-size: 14px; font-style: italic; color: var(--nrs-red); }
+.nrs-letterhead__intro {
+  margin: 18px auto 0;
+  max-width: 640px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--nrs-gray-700);
+  text-align: left;
+}
+
+/* ── SECTION BAR (paper-form "SECTION A — …" bars) ── */
+.nrs-section-bar {
+  margin: 8px 0 24px;
+  padding: 9px 16px;
+  background: var(--nrs-red);
+  color: white;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+/* ── FORM CARD, WIDE (staff checklist table) ── */
+.nrs-form-card--wide { max-width: 1040px; }
+
+/* ── CHECKLIST TABLE (matches the paper checklist: SN / Issues / YES-NO / Remarks / Score) ── */
+.nrs-check-table { border: 1px solid var(--nrs-gray-300); margin-bottom: 28px; }
+.nrs-check-head, .nrs-check-row { display: grid; grid-template-columns: 48px minmax(0, 1.5fr) 200px minmax(0, 1.4fr); }
+.nrs-check-table--scored .nrs-check-head,
+.nrs-check-table--scored .nrs-check-row { grid-template-columns: 48px minmax(0, 1.5fr) 200px minmax(0, 1.4fr) 130px; }
+.nrs-check-head > div {
+  padding: 10px 12px;
+  background: var(--nrs-gray-100);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--nrs-navy);
+  border-left: 1px solid var(--nrs-gray-300);
+}
+.nrs-check-head > div:first-child { border-left: 0; }
+.nrs-check-row { border-top: 1px solid var(--nrs-gray-300); }
+.nrs-check-row > div { padding: 14px 12px; border-left: 1px solid var(--nrs-gray-300); min-width: 0; }
+.nrs-check-row > div:first-child { border-left: 0; }
+.nrs-check-sn { font-weight: 800; color: var(--nrs-red); text-align: center; }
+.nrs-check-title { font-size: 14px; font-weight: 800; color: var(--nrs-navy); line-height: 1.4; }
+.nrs-check-items { margin: 8px 0 0 18px; padding: 0; font-size: 13px; color: var(--nrs-gray-700); line-height: 1.8; }
+.nrs-check-cell__label { display: none; }
+.nrs-check-row .nrs-radio-group { gap: 8px; }
+.nrs-check-row .nrs-radio-label { padding: 8px 10px; gap: 8px; }
+.nrs-check-row > .nrs-check-extra { grid-column: 1 / -1; border-left: 0; border-top: 1px dashed var(--nrs-gray-300); }
+
+@media (max-width: 760px) {
+  .nrs-letterhead { padding: 28px 20px 0; }
+  .nrs-form-card__body { padding: 28px 20px 32px; }
+  .nrs-check-head { display: none; }
+  .nrs-check-row,
+  .nrs-check-table--scored .nrs-check-row { display: block; padding: 14px 0; }
+  .nrs-check-row > div { border-left: 0; padding: 6px 14px; }
+  .nrs-check-sn { text-align: left; }
+  .nrs-check-sn::before { content: "Section "; color: var(--nrs-gray-500); font-weight: 600; }
+  .nrs-check-cell__label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--nrs-gray-700);
+  }
+}
+
+/* ── CHANNELS TABLE (paper form Q7) ── */
+.nrs-channel-table { border: 1px solid var(--nrs-gray-300); }
+.nrs-channel-head, .nrs-channel-row { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.1fr) 190px; }
+.nrs-channel-head > div {
+  padding: 10px 12px;
+  background: var(--nrs-red);
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .03em;
+}
+.nrs-channel-row { border-top: 1px solid var(--nrs-gray-300); align-items: center; }
+.nrs-channel-row > div { padding: 10px 12px; min-width: 0; }
+.nrs-channel-name { font-size: 14px; font-weight: 700; color: var(--nrs-navy); }
+.nrs-channel-detail { font-size: 13px; color: var(--nrs-gray-700); overflow-wrap: anywhere; }
+.nrs-channel-row .nrs-radio-group { gap: 8px; }
+.nrs-channel-row .nrs-radio-label { padding: 8px 10px; gap: 8px; }
+
+/* ── SOCIAL HANDLES (paper form Q9) ── */
+.nrs-socials {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 10px 20px;
+}
+.nrs-socials li { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.nrs-socials__platform { font-weight: 700; color: var(--nrs-navy); flex: 0 0 82px; }
+.nrs-socials__handle { color: var(--nrs-gray-700); overflow-wrap: break-word; min-width: 0; }
+.nrs-socials__contact { margin: 0 0 14px; font-size: 12px; color: var(--nrs-gray-500); }
+
+@media (max-width: 640px) {
+  .nrs-channel-head { display: none; }
+  .nrs-channel-row { display: block; padding: 6px 0; }
+  .nrs-channel-row > div { padding: 3px 12px; }
+}
+
+/* ── STAFF FORM: CSQAU SCORER BANNER (Batch 6) ── */
+.nrs-scorer-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  background: var(--nrs-gray-100);
+  border: 2px solid var(--nrs-navy);
+  border-radius: var(--nrs-r-md);
+  padding: 16px;
+  margin-bottom: 24px;
+}
+.nrs-scorer-banner__text { flex: 1 1 260px; margin: 0; font-size: 13px; color: var(--nrs-gray-700); }
+.nrs-scorer-banner__link {
+  display: inline-block;
+  flex: 0 1 auto;
+  background: var(--nrs-navy);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+  padding: 12px 18px;
+  border-radius: var(--nrs-r-md);
+}
+.nrs-scorer-banner__link:hover { background: var(--nrs-red); }
+@media (max-width: 640px) {
+  .nrs-scorer-banner__link { width: 100%; }
 }

@@ -1,5 +1,8 @@
 // NRS Taxpayer Satisfaction Survey — Apps Script webhook
 // Matches payload keys documented in src/app/api/taxpayer/route.ts
+// phone_email is a legacy column (old combined field); phone and email are appended at the end.
+// If the sheet already has a header row, add "phone" and "email" to the end of it by hand:
+// headers are only written when the sheet is empty.
 
 const HEADERS = [
   "submitted_at", "tax_office", "has_tax_id", "tax_id", "rc_bn", "address",
@@ -8,6 +11,7 @@ const HEADERS = [
   "resolution_satisfaction", "knows_website", "knows_contact_centre",
   "knows_ussd", "knows_tax_id_url", "knows_rev360", "rev360_comfort",
   "knows_einvoicing", "knows_social_media", "suggestions", "contact_email",
+  "phone", "email",
 ]
 
 function doPost(e) {
