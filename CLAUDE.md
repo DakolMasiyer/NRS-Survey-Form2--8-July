@@ -21,7 +21,7 @@ Design system and webhook pattern ported from `nrs-taxpayer-feedback`.
   - Scoring is atomic (`UPDATE … WHERE status='pending'`), the server recomputes the total, then the finished row goes to `NRS_SPAFF_WEBHOOK_URL` (+ `_BACKUP`) → staff Google Sheet (last column `submission_id`); resend is idempotent.
   - Overview (`src/lib/overview.ts`): month = Africa/Lagos month; counts and dates only, never PII.
 - Never run local POST tests with live webhook env vars set; blank them first.
-- Guide for NRS users: `docs/guide/NRS-Service-Surveys-Guide.pdf` (rebuild: `node scripts/make-guide.ts && bash scripts/render-guide.sh`; never put the passcode in it).
+- Guides for NRS users (two PDFs: general, and a git-ignored admin copy with the passcode): see `docs/guide/README.md`. Rebuild with `node scripts/make-guide.ts general|admin` + `bash scripts/render-guide.sh general|admin`; the admin build reads the passcode from env `GUIDE_PASSCODE`; never put it in a file.
 
 # Commands
 - Run locally: `npm run dev`
