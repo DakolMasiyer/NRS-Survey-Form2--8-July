@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { SECTIONS } from "./staff-sections"
+import { NOT_APPLICABLE, SECTIONS } from "./staff-sections"
 import { isValidTaxOffice } from "./tax-offices"
 
 const required = z.string().min(1, "Required")
@@ -31,12 +31,24 @@ export const stage1Schema = z
       .array(
         z
           .object({
-            status: z.enum(["YES", "NO"]),
+            status: z.enum(["YES", "NO", NOT_APPLICABLE]),
             remarks: z.string().max(2000).optional(),
           })
           .strict()
       )
-      .length(SECTIONS.length),
+      .length(SECTIONS.length)
+      .superRefine((sections, ctx) => {
+        sections.forEach((s, i) => {
+          const heading = SECTIONS[i]?.listOnly === true
+          if (heading !== (s.status === NOT_APPLICABLE)) {
+            ctx.addIssue({
+              code: "custom",
+              path: [i, "status"],
+              message: heading ? "This row is a heading, not a YES/NO question" : "Please answer YES or NO",
+            })
+          }
+        })
+      }),
     staff: z.array(staffMemberSchema).min(1, "Add at least one staff member"),
   })
   .strict()

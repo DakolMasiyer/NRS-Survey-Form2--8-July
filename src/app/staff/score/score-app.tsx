@@ -461,6 +461,12 @@ export function ScoreApp() {
               )}
             </div>
 
+            {section.listOnly ? (
+              <div className="nrs-check-heading-note">
+                Staff list below.
+              </div>
+            ) : (
+              <>
             <div>
               <span className="nrs-check-cell__label">Status</span>
               <strong>{visit.payload.sections[i].status}</strong>
@@ -470,6 +476,8 @@ export function ScoreApp() {
               <span className="nrs-check-cell__label">Remarks / actions required</span>
               <div style={{ whiteSpace: "pre-wrap", fontSize: 14 }}>{visit.payload.sections[i].remarks ?? ""}</div>
             </div>
+              </>
+            )}
 
             <div className="nrs-check-score">
               <span className="nrs-check-cell__label">Score (%)</span>

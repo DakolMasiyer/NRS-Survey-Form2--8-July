@@ -3,9 +3,12 @@
  * scorer page and the server (schemas, sheet rows).
  */
 
-export type StaffSection = { key: string; title: string; items?: string[] }
+// `listOnly` sections are headings: the officer fills in a list (staff details),
+// not a YES/NO answer, so they are stored with status NOT_APPLICABLE.
+export type StaffSection = { key: string; title: string; items?: string[]; listOnly?: boolean }
 
 export const YES_NO = ["YES", "NO"]
+export const NOT_APPLICABLE = "N/A"
 
 export const SECTIONS: StaffSection[] = [
   {
@@ -16,6 +19,7 @@ export const SECTIONS: StaffSection[] = [
   {
     key: "s2",
     title: "Number of staff",
+    listOnly: true,
   },
   {
     key: "s3",

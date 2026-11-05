@@ -14,7 +14,7 @@ import {
 } from "../form-controls"
 import { TaxOfficeSelect } from "../tax-office-select"
 import { isValidTaxOffice } from "@/lib/tax-offices"
-import { SECTIONS, YES_NO } from "@/lib/staff-sections"
+import { NOT_APPLICABLE, SECTIONS, YES_NO } from "@/lib/staff-sections"
 
 const staffSchema = z.object({
   name: z.string().min(1, "Required"),
@@ -44,7 +44,7 @@ type FormValues = z.infer<typeof formSchema>
 
 const DEFAULTS: FormValues = {
   tax_office: "",
-  sections: SECTIONS.map(() => ({ status: "", remarks: "" })),
+  sections: SECTIONS.map((s) => ({ status: s.listOnly ? NOT_APPLICABLE : "", remarks: "" })),
   staff: [{ name: "", ir: "", rank: "", phone: "", email: "" }],
 }
 
@@ -169,6 +169,12 @@ export function StaffForm() {
               )}
             </div>
 
+            {section.listOnly ? (
+              <div className="nrs-check-heading-note">
+                Attach the list of staff below.
+              </div>
+            ) : (
+              <>
             <div>
               <span className="nrs-check-cell__label">Status</span>
               <RadioPills
@@ -191,6 +197,8 @@ export function StaffForm() {
                 onChange={(e) => setValue(`sections.${i}.remarks`, e.target.value)}
               />
             </div>
+              </>
+            )}
 
             {section.key === "s2" && (
               <div className="nrs-check-extra">

@@ -22,7 +22,8 @@ function fillValidForm(container: HTMLElement) {
   const [stateSel, officeSel] = screen.getAllByRole("combobox")
   fireEvent.change(stateSel, { target: { value: "Abia" } })
   fireEvent.change(officeSel, { target: { value: "ETO Abia" } })
-  SECTIONS.forEach((_, i) => {
+  SECTIONS.forEach((section, i) => {
+    if (section.listOnly) return
     const yes = container.querySelector<HTMLInputElement>(
       `input[name="sections.${i}.status"][value="YES"]`
     )!
@@ -53,6 +54,15 @@ describe("StaffForm (officer, step 1)", () => {
     expect(heads).toEqual(["S/N", "Issues", "Yes / No", "Remarks / actions required"])
   })
 
+  it("shows Number of staff as a heading: no YES/NO or remarks, only the staff list", () => {
+    const { container } = render(<StaffForm />)
+    const i = SECTIONS.findIndex((x) => x.key === "s2")
+    expect(container.querySelector(`input[name="sections.${i}.status"]`)).toBeNull()
+    expect(screen.getByText("Number of staff")).toBeInTheDocument()
+    expect(container.querySelectorAll(".nrs-check-extra input").length).toBe(5)
+    expect(container.querySelectorAll('input[type="radio"]').length).toBe((SECTIONS.length - 1) * 2)
+  })
+
   it("shows the scorer banner linking to /staff/score", () => {
     render(<StaffForm />)
     const link = screen.getByRole("link", { name: "CSQAU scorer? Open the scoring page" })
@@ -63,7 +73,7 @@ describe("StaffForm (officer, step 1)", () => {
     const payload = buildStage1Payload({
       tax_office: OFFICE,
       sections: SECTIONS.map((_, i) => ({
-        status: i % 2 ? "NO" : "YES",
+        status: SECTIONS[i].listOnly ? "N/A" : i % 2 ? "NO" : "YES",
         remarks: i ? "note" : undefined,
       })),
       staff: [{ name: "Ada", ir: "1", rank: "Officer", phone: "080", email: "a@b.c" }],
