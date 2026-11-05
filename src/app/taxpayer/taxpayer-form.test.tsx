@@ -105,10 +105,6 @@ describe("TaxpayerForm layout", () => {
     expect(rows[4]).toHaveTextContent("selfservice.nrs.gov.ng")
     expect(rows[5]).toHaveTextContent("NRS E-Invoicing Platform")
     expect(rows[5]).toHaveTextContent("einvoice.nrs.gov.ng")
-    const einvoiceLink = within(rows[5] as HTMLElement).getByRole("link", { name: "einvoice.nrs.gov.ng" })
-    expect(einvoiceLink).toHaveAttribute("href", "https://einvoice.nrs.gov.ng/")
-    expect(einvoiceLink).toHaveAttribute("target", "_blank")
-    expect(einvoiceLink).toHaveAttribute("rel", "noopener noreferrer")
     for (const row of rows) expect(row.querySelectorAll("input[type=radio]")).toHaveLength(2)
   })
 

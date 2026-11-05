@@ -337,18 +337,10 @@ export function TaxpayerForm() {
             <div>Details</div>
             <div>Are you familiar with this?</div>
           </div>
-          {NRS_CHANNELS.map(({ key, label, detail, href }) => (
+          {NRS_CHANNELS.map(({ key, label, detail }) => (
             <div key={key} className="nrs-channel-row">
               <div className="nrs-channel-name">{label}</div>
-              <div className="nrs-channel-detail">
-                {href ? (
-                  <a href={href} target="_blank" rel="noopener noreferrer">
-                    {detail}
-                  </a>
-                ) : (
-                  detail
-                )}
-              </div>
+              <div className="nrs-channel-detail">{detail}</div>
               <div>
                 <RadioPills
                   name={key}
