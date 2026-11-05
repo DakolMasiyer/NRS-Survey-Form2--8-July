@@ -649,6 +649,7 @@ body {
 .nrs-check-cell__label { display: none; }
 .nrs-check-row .nrs-radio-group { gap: 8px; }
 .nrs-check-row .nrs-radio-label { padding: 8px 10px; gap: 8px; }
+.nrs-check-row > .nrs-check-heading-note { grid-column: 3 / span 2; align-self: center; font-size: 14px; color: var(--nrs-gray-700); }
 .nrs-check-row > .nrs-check-extra { grid-column: 1 / -1; border-left: 0; border-top: 1px dashed var(--nrs-gray-300); }
 
 @media (max-width: 760px) {

@@ -32,7 +32,7 @@ export async function createTestDb(): Promise<{ db: PGlite; sql: Sql }> {
 export function stage1Body(overrides: Record<string, unknown> = {}) {
   return {
     tax_office: OFFICE,
-    sections: SECTIONS.map(() => ({ status: "YES" })),
+    sections: SECTIONS.map((s) => ({ status: s.listOnly ? "N/A" : "YES" })),
     staff: [{ name: "Ada Obi", ir: "123", rank: "Officer", phone: "0801", email: "ada@example.test" }],
     ...overrides,
   }
