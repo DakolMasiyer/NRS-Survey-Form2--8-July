@@ -326,3 +326,17 @@ describe("ScoreApp review", () => {
     await waitFor(() => expect(callsTo("/api/staff/pending").length).toBeGreaterThan(before))
   })
 })
+
+describe("ScoreApp overview link", () => {
+  it("is absent at the gate", () => {
+    render(<ScoreApp />)
+    expect(screen.queryByRole("link", { name: "See who has submitted" })).toBeNull()
+  })
+
+  it("appears after unlock and points to /staff/overview", async () => {
+    render(<ScoreApp />)
+    await unlock()
+    const link = await screen.findByRole("link", { name: "See who has submitted" })
+    expect(link).toHaveAttribute("href", "/staff/overview")
+  })
+})

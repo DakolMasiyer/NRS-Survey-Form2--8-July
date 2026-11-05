@@ -65,3 +65,38 @@ export async function markSynced(sql: Sql, id: string): Promise<void> {
 export async function markSyncError(sql: Sql, id: string, message: string): Promise<void> {
   await sql`UPDATE checklist_visits SET sheet_error = ${message.slice(0, 500)} WHERE id = ${id}::uuid`
 }
+
+export type OfficeActivityRow = {
+  tax_office: string
+  pending: number
+  scored: number
+  last_submitted_at: string | Date
+}
+
+/** Per-office visit counts for a Nigeria-time month ("YYYY-MM"). Counts and dates only, no payload. */
+export async function officeActivity(sql: Sql, month: string): Promise<OfficeActivityRow[]> {
+  const rows = await sql`
+    SELECT tax_office,
+           count(*) FILTER (WHERE status = 'pending')::int AS pending,
+           count(*) FILTER (WHERE status = 'scored')::int AS scored,
+           max(submitted_at) AS last_submitted_at
+    FROM checklist_visits
+    WHERE to_char(submitted_at AT TIME ZONE 'Africa/Lagos', 'YYYY-MM') = ${month}
+    GROUP BY tax_office
+    ORDER BY tax_office`
+  return rows.map((r) => ({
+    tax_office: r.tax_office as string,
+    pending: Number(r.pending),
+    scored: Number(r.scored),
+    last_submitted_at: r.last_submitted_at as string | Date,
+  }))
+}
+
+/** Distinct Nigeria-time months ("YYYY-MM") that have any visit, newest first. */
+export async function activityMonths(sql: Sql): Promise<string[]> {
+  const rows = await sql`
+    SELECT DISTINCT to_char(submitted_at AT TIME ZONE 'Africa/Lagos', 'YYYY-MM') AS month
+    FROM checklist_visits
+    ORDER BY month DESC`
+  return rows.map((r) => r.month as string)
+}
