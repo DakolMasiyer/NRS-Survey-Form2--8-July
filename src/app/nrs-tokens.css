@@ -81,6 +81,12 @@ body {
   border-bottom: 2px solid transparent;
 }
 .nrs-nav__links a:hover { color: var(--nrs-navy); border-bottom-color: var(--nrs-red); }
+/* The nav link rule above out-ranks .nrs-btn--primary and made button text dark grey on red; keep it white. */
+.nrs-nav__links a.nrs-btn--nav,
+.nrs-nav__links a.nrs-btn--nav:hover {
+  color: var(--nrs-white);
+  border-bottom-color: var(--nrs-red);
+}
 
 /* ── BUTTONS ── */
 .nrs-btn {

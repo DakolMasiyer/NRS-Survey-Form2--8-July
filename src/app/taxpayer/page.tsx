@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { TopBar, Nav, Footer } from "../chrome"
+import { Footer } from "../chrome"
 import { Letterhead } from "../letterhead"
 import { TaxpayerForm } from "./taxpayer-form"
 
@@ -12,9 +12,6 @@ export const metadata: Metadata = {
 export default function TaxpayerPage() {
   return (
     <>
-      <TopBar />
-      <Nav cta={{ href: "#form", label: "Start Survey" }} />
-
       <section className="nrs-form-section" id="form" style={{ borderTop: "none", padding: "48px 0 72px" }}>
         <div className="nrs-form-section__inner">
           <div className="nrs-form-card">
