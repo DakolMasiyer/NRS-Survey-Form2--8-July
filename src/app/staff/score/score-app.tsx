@@ -30,7 +30,7 @@ type ApiResult = { status: number; body: Record<string, unknown> }
 
 const SIGNOFF_TITLES: [SignoffKey, string][] = [
   ["checked_by", "Checked by (CSQAU)"],
-  ["head_tpsu", "Head TPSU"],
+  ["head_tpsu", "Head CSU"],
   ["controller", "Tax Controller / State Monitor"],
 ]
 const SIGNATORY_FIELDS: (keyof Signatory)[] = ["name", "ir_rank", "phone", "email"]
@@ -241,7 +241,8 @@ export function ScoreApp() {
   }
 
   function validate(): boolean {
-    const nextScoreErrors = scores.map((v) => {
+    const nextScoreErrors = scores.map((v, i) => {
+      if (SECTIONS[i]?.listOnly) return undefined
       if (v.trim() === "") return "Enter a score"
       const n = Number(v)
       if (!Number.isFinite(n) || n < 0 || n > 100) return "Score must be between 0 and 100"
@@ -277,7 +278,11 @@ export function ScoreApp() {
       return
     }
     // The request carries no total: the server recomputes it.
-    const checked = scoringSchema.safeParse({ id: visit.id, scores: scores.map(Number), signoffs })
+    const checked = scoringSchema.safeParse({
+      id: visit.id,
+      scores: scores.map((score, i) => (SECTIONS[i]?.listOnly ? null : Number(score))),
+      signoffs,
+    })
     if (!checked.success) {
       setReviewMessage(`The scoring details are not valid: ${checked.error.issues[0]?.message ?? "unknown problem"}`)
       return
@@ -489,16 +494,25 @@ export function ScoreApp() {
               </>
             )}
 
-            <div className="nrs-check-score">
-              <span className="nrs-check-cell__label">Score (%)</span>
-              <TextField
-                type="number"
-                value={scores[i]}
-                onChange={(v) => setScores((prev) => prev.map((s, idx) => (idx === i ? v : s)))}
-                placeholder="0–100"
-                error={scoreErrors[i]}
-              />
-            </div>
+            {section.listOnly ? (
+              <div className="nrs-check-score">
+                <span className="nrs-check-cell__label">Staff count</span>
+                <strong>
+                  {visit.payload.staff.length} staff member{visit.payload.staff.length === 1 ? "" : "s"}
+                </strong>
+              </div>
+            ) : (
+              <div className="nrs-check-score">
+                <span className="nrs-check-cell__label">Score (%)</span>
+                <TextField
+                  type="number"
+                  value={scores[i]}
+                  onChange={(v) => setScores((prev) => prev.map((s, idx) => (idx === i ? v : s)))}
+                  placeholder="0–100"
+                  error={scoreErrors[i]}
+                />
+              </div>
+            )}
 
             {section.key === "s2" && (
               <div className="nrs-check-extra">

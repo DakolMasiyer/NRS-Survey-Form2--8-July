@@ -20,7 +20,7 @@ describe("buildSheetRow", () => {
     submitted_at: "2026-11-04T09:30:00.000Z",
     tax_office: payload.tax_office,
     payload,
-    scores: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+    scores: [10, null, 30, 40, 50, 60, 70, 80, 90, 100],
     signoffs: { checked_by: sig("chk"), head_tpsu: sig("head"), controller: sig("ctl") },
     total_score: 55,
   })
@@ -49,6 +49,9 @@ describe("buildSheetRow", () => {
     expect(row.s1_title).toBe(SECTIONS[0].title)
     expect(row.s10_title).toBe(SECTIONS[9].title)
     expect(row.s1_status).toBe("YES")
+    expect(row.s2_status).toBe("2")
+    expect(row.s2_score).toBe("")
+    expect(row.s2_staff_count).toBe(2)
     expect(row.s1_remarks).toBe("")
     expect(row.s3_status).toBe("NO")
     expect(row.s3_remarks).toBe("No printer")

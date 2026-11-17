@@ -172,7 +172,9 @@ export function StaffForm() {
 
             {section.listOnly ? (
               <div className="nrs-check-heading-note">
-                Attach the list of staff below.
+                <strong>Staff count: {staffFields.length}</strong>
+                <br />
+                Add each staff member below; this count updates automatically.
               </div>
             ) : (
               <>

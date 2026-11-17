@@ -185,13 +185,24 @@ describe("ScoreApp review", () => {
     expect(remarks.tagName).not.toBe("INPUT")
     expect(table.querySelectorAll("textarea, select, input[type=radio]")).toHaveLength(0)
     const inputs = table.querySelectorAll("input")
-    expect(inputs).toHaveLength(SECTIONS.length)
+    expect(inputs).toHaveLength(SECTIONS.length - 1)
     inputs.forEach((i) => expect(i.type).toBe("number"))
     expect(within(table).getByText("Amina Bello")).toBeInTheDocument()
     expect(within(table).getByText("Ambience (Is the unit conducive?)")).toBeInTheDocument()
     expect(within(table).getAllByText("YES").length).toBeGreaterThan(0)
-    // 10 scores + 12 sign-off fields, nothing else.
-    expect(document.querySelectorAll("input")).toHaveLength(SECTIONS.length + 12)
+    // 9 service scores + 12 sign-off fields; staff count is displayed, not scored.
+    expect(document.querySelectorAll("input")).toHaveLength(SECTIONS.length - 1 + 12)
+    expect(within(table).getByText("Staff count")).toBeInTheDocument()
+    expect(within(table).getByText("1 staff member")).toBeInTheDocument()
+  })
+
+  it("titles the sign-off blocks with Head CSU (not TPSU)", async () => {
+    render(<ScoreApp />)
+    await openReview()
+    expect(screen.getByText("Checked by (CSQAU)")).toBeInTheDocument()
+    expect(screen.getByText("Head CSU")).toBeInTheDocument()
+    expect(screen.getByText("Tax Controller / State Monitor")).toBeInTheDocument()
+    expect(screen.queryByText(/TPSU/)).not.toBeInTheDocument()
   })
 
   it("previews the total as scores are entered", async () => {
@@ -206,7 +217,7 @@ describe("ScoreApp review", () => {
     render(<ScoreApp />)
     await openReview()
     fireEvent.click(screen.getByRole("button", { name: "Save scores" }))
-    expect((await screen.findAllByText("Enter a score")).length).toBe(SECTIONS.length)
+    expect((await screen.findAllByText("Enter a score")).length).toBe(SECTIONS.length - 1)
     expect(callsTo("/api/staff/score")).toHaveLength(0)
   })
 
@@ -256,7 +267,7 @@ describe("ScoreApp review", () => {
     expect(headerOf(init, "x-csqau-code")).toBe(CODE)
     const body = jsonBody(init)
     expect(body.id).toBe(ID)
-    expect(body.scores).toEqual(Array(10).fill(50))
+    expect(body.scores).toEqual([50, null, 50, 50, 50, 50, 50, 50, 50, 50])
     expect(Object.keys(body).sort()).toEqual(["id", "scores", "signoffs"])
     expect(Object.keys(body.signoffs as object).sort()).toEqual(["checked_by", "controller", "head_tpsu"])
   })

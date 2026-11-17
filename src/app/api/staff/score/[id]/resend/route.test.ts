@@ -106,7 +106,7 @@ describe("POST /api/staff/score/[id]/resend", () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ sheetSynced: true })
     expect(sendToWebhooks).toHaveBeenCalledTimes(1)
-    expect(vi.mocked(sendToWebhooks).mock.calls[0][1]).toMatchObject({ submission_id: id, total_score: 55 })
+    expect(vi.mocked(sendToWebhooks).mock.calls[0][1]).toMatchObject({ submission_id: id, total_score: 58.9 })
     const row = (await sql`SELECT sheet_synced_at, sheet_error FROM checklist_visits WHERE id = ${id}::uuid`)[0]
     expect(row.sheet_synced_at).not.toBeNull()
     expect(row.sheet_error).toBeNull()

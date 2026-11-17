@@ -46,25 +46,32 @@ export function CheckboxPills({
   options,
   values,
   onChange,
+  disabled = false,
 }: {
   options: string[]
   values: string[]
   onChange: (v: string[]) => void
+  disabled?: boolean
 }) {
   return (
-    <div className="nrs-radio-group">
+    <div className="nrs-radio-group" style={disabled ? { opacity: 0.5 } : undefined}>
       {options.map((opt) => {
         const checked = values.includes(opt)
         return (
-          <label key={opt} className={`nrs-radio-label${checked ? " is-checked" : ""}`}>
+          <label
+            key={opt}
+            className={`nrs-radio-label${checked ? " is-checked" : ""}`}
+            style={disabled ? { cursor: "not-allowed" } : undefined}
+          >
             <input
               type="checkbox"
               value={opt}
               checked={checked}
+              disabled={disabled}
               onChange={() =>
                 onChange(checked ? values.filter((v) => v !== opt) : [...values, opt])
               }
-              style={{ width: 18, height: 18, accentColor: "var(--nrs-red)", flexShrink: 0, cursor: "pointer" }}
+              style={{ width: 18, height: 18, accentColor: "var(--nrs-red)", flexShrink: 0, cursor: disabled ? "not-allowed" : "pointer" }}
             />
             <span>{opt}</span>
           </label>

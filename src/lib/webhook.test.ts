@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { proxyToWebhooks, sendToWebhooks } from "./webhook"
+import { proxyToWebhooks, sendToWebhooks, sheetSafe } from "./webhook"
 
 const ENV = ["TEST_HOOK", "TEST_HOOK_BACKUP"]
 const fetchMock = vi.fn()
@@ -113,5 +113,31 @@ describe("proxyToWebhooks", () => {
     fetchMock.mockRejectedValue(new Error("boom"))
     const res = await proxyToWebhooks(req("{}"), ENV)
     expect(res.status).toBe(502)
+  })
+})
+
+describe("sheetSafe", () => {
+  it("prefixes text that Sheets would turn into a formula or a number with a leading zero", () => {
+    expect(
+      sheetSafe({ a: "+234 803 123 4567", b: "+1 415 555 2671", c: "=1+1", d: "-5", e: "@x", f: "08031234567", g: "0803 123 4567" }),
+    ).toEqual({ a: "'+234 803 123 4567", b: "'+1 415 555 2671", c: "'=1+1", d: "'-5", e: "'@x", f: "'08031234567", g: "'0803 123 4567" })
+  })
+
+  it("leaves ordinary values alone (text, dates, ids, numbers, booleans, empty)", () => {
+    const row = { name: "Ada", at: "2026-11-05T09:00:00.000Z", id: "d1c7a3ef-ba28", n: 77.1, ok: true, blank: "", zero: "0", staff: "[{\"ir\":\"1\"}]", mail: "a@b.ng" }
+    expect(sheetSafe(row)).toEqual(row)
+  })
+
+  it("passes non-objects through unchanged", () => {
+    expect(sheetSafe("+1")).toBe("+1")
+    expect(sheetSafe(null)).toBe(null)
+    expect(sheetSafe([1])).toEqual([1])
+  })
+
+  it("is applied to what is posted to the webhooks", async () => {
+    vi.stubEnv("TEST_HOOK", "https://hook.invalid/a")
+    fetchMock.mockResolvedValue(ok())
+    await sendToWebhooks(ENV, { phone: "+234 803 123 4567" })
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body as string)).toEqual({ phone: "'+234 803 123 4567" })
   })
 })

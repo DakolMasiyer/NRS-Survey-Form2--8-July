@@ -24,8 +24,8 @@ const YES_NO = ["YES", "NO"]
 const NON_COMPLIANCE_REASONS = [
   "I am not registered on Rev360",
   "My tax office is far away",
-  "I have no idea how to file my taxes or what taxes I am expected to file",
-  "I am worried about unfair assessments, arrears, penalties and interests",
+  "I don't know how to file my taxes or which taxes I owe",
+  "I am worried about unfair assessments, arrears, penalties or interest",
   "Other",
 ]
 
@@ -190,7 +190,7 @@ export function TaxpayerForm() {
       <SectionBar letter="A">Taxpayer / Business Information</SectionBar>
 
       <div className="nrs-form-group">
-        <QuestionLabel num={next()} optional>
+        <QuestionLabel num={next()}>
           Does your company have a Tax ID (Tax Identification Number)?
         </QuestionLabel>
         <RadioPills
@@ -231,31 +231,39 @@ export function TaxpayerForm() {
           options={YES_NO}
           inline
           value={values.tax_compliant}
-          onChange={set("tax_compliant")}
+          onChange={(v) => {
+            setValue("tax_compliant", v, { shouldValidate: true })
+            if (v !== "NO") {
+              setValue("non_compliance_reasons", [], { shouldValidate: true })
+              setValue("non_compliance_other", "")
+            }
+          }}
           error={errors.tax_compliant?.message}
         />
-        {values.tax_compliant === "NO" && (
-          <div style={{ marginTop: 14 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--nrs-gray-700)", marginBottom: 8 }}>
-              Could you please let us know why? (tick all that apply)
-            </div>
-            <CheckboxPills
-              options={NON_COMPLIANCE_REASONS}
-              values={values.non_compliance_reasons}
-              onChange={(v) => setValue("non_compliance_reasons", v, { shouldValidate: true })}
+      </div>
+
+      <div className="nrs-form-divider" />
+
+      <div className="nrs-form-group">
+        <QuestionLabel num={next()}>
+          If you ticked NO above, what is the reason? (tick all that apply)
+        </QuestionLabel>
+        <CheckboxPills
+          options={NON_COMPLIANCE_REASONS}
+          values={values.non_compliance_reasons}
+          onChange={(v) => setValue("non_compliance_reasons", v, { shouldValidate: true })}
+          disabled={values.tax_compliant !== "NO"}
+        />
+        {errors.non_compliance_reasons?.message && (
+          <p className="nrs-field-error">{errors.non_compliance_reasons.message}</p>
+        )}
+        {values.tax_compliant === "NO" && values.non_compliance_reasons.includes("Other") && (
+          <div style={{ marginTop: 10 }}>
+            <TextField
+              label="Please explain (optional)"
+              value={values.non_compliance_other ?? ""}
+              onChange={set("non_compliance_other")}
             />
-            {errors.non_compliance_reasons?.message && (
-              <p className="nrs-field-error">{errors.non_compliance_reasons.message}</p>
-            )}
-            {values.non_compliance_reasons.includes("Other") && (
-              <div style={{ marginTop: 10 }}>
-                <TextField
-                  label="Please explain (optional)"
-                  value={values.non_compliance_other ?? ""}
-                  onChange={set("non_compliance_other")}
-                />
-              </div>
-            )}
           </div>
         )}
       </div>

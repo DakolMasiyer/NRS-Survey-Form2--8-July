@@ -76,7 +76,7 @@ npm test            # available from Batch 0 onwards
 
 ## 6. Assumptions and open questions (confirm with the owner; don't guess)
 1. **Locked submissions are allowed** (officers can submit status/remarks without scores; rows have blank score columns). If the owner wants officers to be unable to submit at all, Batch 1 step 4 changes.
-2. **Sign-off blocks:** paper form has a 4th "Regional Administrator" block and "Head HCSU" (code: "Head TPSU"). Change only on owner confirmation.
+2. **Sign-off blocks:** paper form has a 4th "Regional Administrator" block and "Head HCSU". **Resolved (Nov 2026):** NRS asked for "Head CSU"; the label now reads "Head CSU". The data key stays `head_tpsu` (sheet columns, `Code.gs`, DB). The 4th block is still unconfirmed.
 3. **Sheet columns:** Batch 2's phone/email split changes the taxpayer payload; confirm the sheet and `Code.gs` before deploying.
 4. **Rev360 comfort scale** change (Batch 3) alters stored values.
 5. The access code is a shared secret, not per-user identity. It does not record who scored; per-user logins remain the long-term option from the meeting.

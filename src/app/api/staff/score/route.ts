@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from "next/server"
 import { averageScore } from "@/lib/score"
 import { handleRouteError, jsonError, readJson, requireCsqau, syncVisitToSheet } from "@/lib/staff-api"
 import { scoringSchema } from "@/lib/staff-schema"
+import { SECTIONS } from "@/lib/staff-sections"
 import { getVisit, scoreVisit } from "@/lib/visits"
 
 /*
- * POST { id, scores: number[10], signoffs } with header x-csqau-code.
+ * POST { id, scores: (number | null)[10], signoffs } with header x-csqau-code.
+ * Number of staff is informational, so its score must be null.
  * The total is computed here; a client-sent total_score is rejected (strict schema).
  * 200 { saved: true, sheetSynced, total_score }; sheetSynced=false means the record
  * is saved but the sheet update failed (use /score/[id]/resend). 404 unknown id,
@@ -22,7 +24,7 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) return jsonError(400, parsed.error.issues[0]?.message ?? "Invalid scores")
     const { id, scores, signoffs } = parsed.data
 
-    const total_score = averageScore(scores.map(String))
+    const total_score = averageScore(scores.filter((_, i) => !SECTIONS[i]?.listOnly).map(String))
     if (total_score === null) throw new Error("Total score could not be computed")
 
     const scored = await scoreVisit(gate.sql, { id, scores, signoffs, total_score })

@@ -78,18 +78,18 @@ describe("POST /api/staff/score: scoring", () => {
     const id = await insertPending(sql)
     const res = await score(scoringBody(id))
     expect(res.status).toBe(200)
-    expect(await res.json()).toEqual({ saved: true, sheetSynced: true, total_score: 55 })
+    expect(await res.json()).toEqual({ saved: true, sheetSynced: true, total_score: 58.9 })
 
     const row = await visitRow(id)
     expect(row.status).toBe("scored")
-    expect(row.scores).toEqual([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
-    expect(Number(row.total_score)).toBe(55)
+    expect(row.scores).toEqual([10, null, 30, 40, 50, 60, 70, 80, 90, 100])
+    expect(Number(row.total_score)).toBe(58.9)
     expect(row.sheet_synced_at).not.toBeNull()
 
     expect(sendToWebhooks).toHaveBeenCalledTimes(1)
     const [vars, sent] = vi.mocked(sendToWebhooks).mock.calls[0]
     expect(vars).toEqual(["NRS_SPAFF_WEBHOOK_URL", "NRS_SPAFF_WEBHOOK_URL_BACKUP"])
-    expect(sent).toMatchObject({ submission_id: id, total_score: 55 })
+    expect(sent).toMatchObject({ submission_id: id, total_score: 58.9, s2_staff_count: 1, s2_status: "1", s2_score: "" })
   })
 
   it("rejects a client-sent total_score (unknown key) with 400", async () => {
@@ -118,10 +118,10 @@ describe("POST /api/staff/score: scoring", () => {
   it("returns 409 on a second score and does not overwrite or resend", async () => {
     const id = await insertPending(sql)
     expect((await score(scoringBody(id))).status).toBe(200)
-    const res = await score(scoringBody(id, { scores: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }))
+    const res = await score(scoringBody(id, { scores: [0, null, 0, 0, 0, 0, 0, 0, 0, 0] }))
     expect(res.status).toBe(409)
     expect(await res.json()).toEqual({ error: "already scored" })
-    expect(Number((await visitRow(id)).total_score)).toBe(55)
+    expect(Number((await visitRow(id)).total_score)).toBe(58.9)
     expect(sendToWebhooks).toHaveBeenCalledTimes(1)
   })
 
@@ -140,7 +140,7 @@ describe("POST /api/staff/score: scoring", () => {
     const id = await insertPending(sql)
     const res = await score(scoringBody(id))
     expect(res.status).toBe(200)
-    expect(await res.json()).toEqual({ saved: true, sheetSynced: false, total_score: 55 })
+    expect(await res.json()).toEqual({ saved: true, sheetSynced: false, total_score: 58.9 })
     const row = await visitRow(id)
     expect(row.status).toBe("scored")
     expect(row.sheet_synced_at).toBeNull()

@@ -54,11 +54,25 @@ export const stage1Schema = z
   })
   .strict()
 
-// Step 2 (CSQAU scorer): one 0-100 score per section plus the three sign-offs.
+// Step 2 (CSQAU scorer): every service-quality section gets a 0-100 score.
+// The staff-count section is information only, so its matching score is null.
 export const scoringSchema = z
   .object({
     id: z.uuid(),
-    scores: z.array(z.number().finite().min(0).max(100)).length(SECTIONS.length),
+    scores: z
+      .array(z.number().finite().min(0).max(100).nullable())
+      .length(SECTIONS.length)
+      .superRefine((scores, ctx) => {
+        scores.forEach((score, i) => {
+          const isStaffCount = SECTIONS[i]?.listOnly === true
+          if (isStaffCount && score !== null) {
+            ctx.addIssue({ code: "custom", path: [i], message: "Number of staff is counted automatically, not scored" })
+          }
+          if (!isStaffCount && score === null) {
+            ctx.addIssue({ code: "custom", path: [i], message: "Enter a score" })
+          }
+        })
+      }),
     signoffs: z
       .object({
         checked_by: signatorySchema,

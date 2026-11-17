@@ -34,7 +34,7 @@ describe("staff sheet columns", () => {
 
   it("starts with submitted_at, tax_office, then the section blocks", () => {
     expect(STAFF_COLUMNS.slice(0, 6)).toEqual(["submitted_at", "tax_office", "s1_title", "s1_status", "s1_remarks", "s1_score"])
-    expect(STAFF_COLUMNS).toHaveLength(2 + SECTIONS.length * 4 + 2 + 12 + 1)
+    expect(STAFF_COLUMNS).toHaveLength(2 + SECTIONS.length * 4 + 3 + 12 + 1)
   })
 
   it("buildSheetRow returns exactly the columns", () => {

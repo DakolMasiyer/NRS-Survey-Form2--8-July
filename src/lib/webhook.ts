@@ -21,11 +21,24 @@ import { NextRequest, NextResponse } from "next/server"
  * 3. Copy the HTTP POST URL into the form's env var.
  */
 
+/**
+ * The Google Sheets scripts append rows with appendRow, which parses text like a
+ * typed cell: "+234 803 ..." or "=..." becomes a formula (#ERROR!) and "0803..."
+ * loses its leading zero. A leading apostrophe stores the value as plain text
+ * (Sheets does not display it). Applied to top-level string values only.
+ */
+export function sheetSafe(body: unknown): unknown {
+  if (typeof body !== "object" || body === null || Array.isArray(body)) return body
+  return Object.fromEntries(
+    Object.entries(body).map(([k, v]) => [k, typeof v === "string" && /^([=+\-@]|0\d)/.test(v) ? `'${v}` : v]),
+  )
+}
+
 async function postToWebhook(url: string, body: unknown) {
   const upstream = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body: JSON.stringify(sheetSafe(body)),
   })
 
   if (!upstream.ok) {

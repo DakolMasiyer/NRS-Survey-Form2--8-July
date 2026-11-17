@@ -18,7 +18,7 @@ function stage1(over: Record<string, unknown> = {}) {
 function scoring(over: Record<string, unknown> = {}) {
   return {
     id: ID,
-    scores: SECTIONS.map(() => 80),
+    scores: SECTIONS.map((s) => (s.listOnly ? null : 80)),
     signoffs: { checked_by: sig, head_tpsu: sig, controller: sig },
     ...over,
   }
@@ -89,9 +89,9 @@ describe("stage1Schema", () => {
 })
 
 describe("scoringSchema", () => {
-  it("accepts 10 valid scores, including the 0 and 100 bounds", () => {
+  it("accepts nine service scores, including the 0 and 100 bounds, plus the automatic null count score", () => {
     expect(scoringSchema.safeParse(scoring()).success).toBe(true)
-    expect(scoringSchema.safeParse(scoring({ scores: [0, 100, 0, 100, 0, 100, 0, 100, 0, 100] })).success).toBe(true)
+    expect(scoringSchema.safeParse(scoring({ scores: [0, null, 100, 0, 100, 0, 100, 0, 100, 0] })).success).toBe(true)
   })
 
   it("rejects 9 or 11 scores", () => {
@@ -103,6 +103,13 @@ describe("scoringSchema", () => {
     const scores: unknown[] = SECTIONS.map(() => 50)
     scores[3] = bad
     expect(scoringSchema.safeParse(scoring({ scores })).success).toBe(false)
+  })
+
+  it("requires a null score only for Number of staff", () => {
+    expect(scoringSchema.safeParse(scoring({ scores: SECTIONS.map(() => 50) })).success).toBe(false)
+    const missingServiceScore = SECTIONS.map((s) => (s.listOnly ? null : 50))
+    missingServiceScore[0] = null
+    expect(scoringSchema.safeParse(scoring({ scores: missingServiceScore })).success).toBe(false)
   })
 
   it("rejects a missing sign-off field and a missing sign-off block", () => {
