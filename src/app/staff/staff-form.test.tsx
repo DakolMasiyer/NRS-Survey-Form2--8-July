@@ -59,8 +59,17 @@ describe("StaffForm (officer, step 1)", () => {
     const i = SECTIONS.findIndex((x) => x.key === "s2")
     expect(container.querySelector(`input[name="sections.${i}.status"]`)).toBeNull()
     expect(screen.getByText("Number of staff")).toBeInTheDocument()
+    expect(screen.getByText("Staff count: 1")).toBeInTheDocument()
     expect(container.querySelectorAll(".nrs-check-extra input").length).toBe(5)
     expect(container.querySelectorAll('input[type="radio"]').length).toBe((SECTIONS.length - 1) * 2)
+  })
+
+  it("updates the visible staff count as rows are added and removed", () => {
+    render(<StaffForm />)
+    fireEvent.click(screen.getByRole("button", { name: "+ Add staff member" }))
+    expect(screen.getByText("Staff count: 2")).toBeInTheDocument()
+    fireEvent.click(screen.getAllByRole("button", { name: "Remove" })[0])
+    expect(screen.getByText("Staff count: 1")).toBeInTheDocument()
   })
 
   it("shows the scorer banner linking to /staff/score", () => {

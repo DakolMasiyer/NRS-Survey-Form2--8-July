@@ -7,7 +7,7 @@ export type SheetVisit = {
   submitted_at: string | Date
   tax_office: string
   payload: Stage1Payload
-  scores: number[]
+  scores: Array<number | null>
   signoffs: Record<(typeof SIGNOFF_PREFIXES)[number], Signatory>
   total_score: number
 }
@@ -26,10 +26,13 @@ export function buildSheetRow(visit: SheetVisit): SheetRow {
   }
   SECTIONS.forEach((section, i) => {
     row[`${section.key}_title`] = section.title
-    row[`${section.key}_status`] = visit.payload.sections[i].status
+    // Section 2 is a staff list, not a YES/NO response. Put the useful count
+    // in its visible status cell rather than the internal N/A placeholder.
+    row[`${section.key}_status`] = section.listOnly ? String(visit.payload.staff.length) : visit.payload.sections[i].status
     row[`${section.key}_remarks`] = visit.payload.sections[i].remarks ?? ""
-    row[`${section.key}_score`] = visit.scores[i]
+    row[`${section.key}_score`] = visit.scores[i] ?? ""
   })
+  row.s2_staff_count = visit.payload.staff.length
   row.s2_staff = JSON.stringify(visit.payload.staff)
   row.total_score = visit.total_score
   for (const prefix of SIGNOFF_PREFIXES) {

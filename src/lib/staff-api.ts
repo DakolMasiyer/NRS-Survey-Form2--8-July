@@ -72,7 +72,7 @@ export async function syncVisitToSheet(
       submitted_at: visit.submitted_at as string | Date,
       tax_office: visit.tax_office as string,
       payload: visit.payload as SheetVisit["payload"],
-      scores: visit.scores as number[],
+      scores: visit.scores as Array<number | null>,
       signoffs: visit.signoffs as SheetVisit["signoffs"],
       total_score: Number(visit.total_score),
     })

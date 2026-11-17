@@ -13,6 +13,7 @@ export const STAFF_COLUMNS = [
   "submitted_at",
   "tax_office",
   ...SECTIONS.flatMap((s) => [`${s.key}_title`, `${s.key}_status`, `${s.key}_remarks`, `${s.key}_score`]),
+  "s2_staff_count",
   "s2_staff",
   "total_score",
   ...SIGNOFF_PREFIXES.flatMap((p) => [`${p}_name`, `${p}_ir_rank`, `${p}_phone`, `${p}_email`]),

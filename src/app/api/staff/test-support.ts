@@ -42,7 +42,7 @@ const sig = (n: string) => ({ name: n, ir_rank: `${n}-rank`, phone: "08000000000
 export function scoringBody(id: string, overrides: Record<string, unknown> = {}) {
   return {
     id,
-    scores: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+    scores: [10, null, 30, 40, 50, 60, 70, 80, 90, 100],
     signoffs: { checked_by: sig("chk"), head_tpsu: sig("head"), controller: sig("ctl") },
     ...overrides,
   }
